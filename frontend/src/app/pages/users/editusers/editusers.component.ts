@@ -1,0 +1,236 @@
+import { Component, OnInit, Inject, Output, EventEmitter, Optional } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { API_BASE_URL, CreateOrEditUserDto, SelectListItem, ServiceProxy } from '../../../shared/services';
+import { ReactiveFormsModule } from '@angular/forms';
+import { NzFormItemComponent, NzFormLabelComponent, NzFormControlComponent } from 'ng-zorro-antd/form';
+import { NZ_MODAL_DATA, NzModalModule } from 'ng-zorro-antd/modal';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { CommonModule } from '@angular/common';
+import { CategoryCacheService } from '../../../shared/category-cache.service';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzUploadModule, NzUploadFile, NzUploadChangeParam } from 'ng-zorro-antd/upload';
+import { of, switchMap } from 'rxjs';
+import { UploadAvatarResult } from '../../../shared/upload-avatar-result';
+import { resolveAssetUrl } from '../../../shared/resolve-asset-url';
+import { UserAvatarUploadService } from '../../../shared/user-avatar-upload.service';
+
+
+@Component({
+  selector: 'app-edit-users',
+  templateUrl: './editusers.component.html',
+  styleUrls: ['./editusers.component.css'],
+  imports: [ReactiveFormsModule, NzFormItemComponent, NzFormLabelComponent,
+    NzFormControlComponent, NzModalModule, NzInputModule, NzButtonModule,
+    NzDatePickerModule, NzSelectModule, CommonModule, NzIconModule, NzUploadModule],
+  standalone: true,
+})
+export class EditUsersComponent implements OnInit {
+  editUserForm: FormGroup;
+  lstProvinces: SelectListItem[] = [];
+  lstDistricts: SelectListItem[] = [];
+  lstWards: SelectListItem[] = [];
+  lstRoleGroups: any[] = [];
+  baseUrl? : string;
+  @Output() saved = new EventEmitter<void>();
+
+  constructor(
+    private fb: FormBuilder,
+    private serviceProxy: ServiceProxy,
+    private memoryCache: CategoryCacheService,
+    private avatarUpload: UserAvatarUploadService,
+    @Inject(NZ_MODAL_DATA) public data: { userData: any },
+    @Optional() @Inject(API_BASE_URL) baseUrl: string
+  ) {
+    this.baseUrl = baseUrl;
+    this.editUserForm = this.fb.group({
+      id: ['', Validators.required],
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      provinceCode: ['', Validators.required],
+      districtCode: ['', Validators.required],
+      wardCode: ['', Validators.required],
+      address: ['', Validators.required],
+      idCard: ['', Validators.required],
+      job: ['', Validators.required],
+      dateOfBirth: ['', Validators.required],
+      gender: ['', Validators.required],
+      roleGroupId: ['', Validators.required],
+      bikeId: ['', Validators.required],
+      phoneNumber: ['', Validators.required],
+      password: ['', Validators.required],
+    });
+  }
+
+  controlRequestArray: Array<{
+    label: string;
+    key: string;
+    type: string;
+    options?: any[];
+    placeholder?: string;
+    validators?: any[];
+    /** Khi có giá trị: select chỉ bật sau khi đã chọn control cha (province → district → ward). */
+    cascadeParentKey?: string;
+  }> = [];
+  fileList: NzUploadFile[] = [];
+  previewImage: string | undefined = '';
+  previewVisible = false;
+  private async getBase64(file: File): Promise<string | ArrayBuffer | null> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  }
+  handlePreview = async (file: NzUploadFile): Promise<void> => {
+    if (!file.url && !file['preview']) {
+      file['preview'] = await this.getBase64(file.originFileObj!);
+    }
+    const raw = (file.url || file['preview']) as string | undefined;
+    this.previewImage = raw ? resolveAssetUrl(this.baseUrl, raw) : undefined;
+    this.previewVisible = true;
+  };
+  beforeUpload = (file: NzUploadFile): boolean => {
+    // Keep file reference only; avoid creating object URLs to reduce memory/paint cost
+    const uploadFile: NzUploadFile = {
+      uid: file.uid,
+      name: file.name,
+      status: 'done',
+      originFileObj: (file as any).originFileObj || (file as any)
+    } as NzUploadFile;
+    this.fileList = [...this.fileList, uploadFile];
+    return false;
+  };
+  /** Syncs controlled [nzFileList] when the user removes a file (or replaces); without this, the upload slot stays hidden. */
+  handleUploadChange(info: NzUploadChangeParam): void {
+    this.fileList = this.normalizeUploadFileList(info.fileList);
+    if (info.fileList.length === 0) {
+      this.editUserForm.patchValue({ avatar: '' }, { emitEvent: false });
+    }
+  }
+
+  /** nzChange có thể trả lại url đã bị ghép nhầm API base + URL Cloudinary — chuẩn hóa lại. */
+  private normalizeUploadFileList(files: NzUploadFile[]): NzUploadFile[] {
+    return files.map(f => {
+      const url = f.url != null && f.url !== '' ? resolveAssetUrl(this.baseUrl, f.url) : f.url;
+      const thumb =
+        f.thumbUrl != null && f.thumbUrl !== ''
+          ? resolveAssetUrl(this.baseUrl, f.thumbUrl)
+          : url != null && url !== ''
+            ? url
+            : f.thumbUrl;
+      return { ...f, url, thumbUrl: thumb };
+    });
+  }
+  initializeFormControls(): void {
+    // Use arrays for options to avoid function calls inside template (improves performance)
+    this.controlRequestArray = [
+      { label: 'Họ và tên', key: 'name', type: 'text', placeholder: 'Nhập họ tên', validators: [Validators.required] },
+      { label: 'Email', key: 'email', type: 'text', placeholder: 'Nhập email', validators: [Validators.required, Validators.email] },
+      { label: 'Tỉnh/Thành', key: 'provinceCode', type: 'select', options: this.lstProvinces, placeholder: 'Chọn tỉnh', validators: [Validators.required] },
+      { label: 'Quận/Huyện', key: 'districtCode', type: 'select', options: this.lstDistricts, placeholder: 'Chọn quận', validators: [Validators.required] },
+      { label: 'Phường/Xã', key: 'wardCode', type: 'select', options: this.lstWards, placeholder: 'Chọn phường', validators: [Validators.required] },
+      { label: 'Địa chỉ', key: 'address', type: 'text', placeholder: 'Nhập địa chỉ', validators: [Validators.required] },
+      { label: 'CMND/CCCD', key: 'idCard', type: 'text', placeholder: 'Nhập số CMND/CCCD', validators: [Validators.required] },
+      { label: 'Nghề nghiệp', key: 'job', type: 'text', placeholder: 'Nhập nghề nghiệp', validators: [Validators.required] },
+      { label: 'Ngày sinh', key: 'dateOfBirth', type: 'date', placeholder: '', validators: [Validators.required] },
+      { label: 'Giới tính', key: 'gender', type: 'select', options: [{ value: 'Nam', text: 'Nam' }, { value: 'Nữ', text: 'Nữ' }], placeholder: 'Chọn giới tính', validators: [Validators.required] },
+      { label: 'Nhóm quyền', key: 'roleGroupId', type: 'select', options: this.lstRoleGroups, placeholder: 'Chọn nhóm quyền', validators: [Validators.required] },
+      { label: 'Xe (ID)', key: 'bikeId', type: 'text', placeholder: 'Nhập mã xe', validators: [Validators.required] },
+      { label: 'Mật khẩu', key: 'password', type: 'text', placeholder: 'Nhập mật khẩu', validators: [Validators.required] },
+      { label: 'SĐT', key: 'phoneNumber', type: 'text', placeholder: 'Nhập số điện thoại', validators: [Validators.required] },
+      { label: 'Avatar', key: 'avatar', type: 'file', placeholder: 'Chọn ảnh đại diện' }
+    ];
+
+    const formControls: { [key: string]: any } = {};
+    this.controlRequestArray.forEach(control => {
+      formControls[control.key] = ['', control.validators || []];
+    });
+    this.editUserForm = this.fb.group(formControls);
+  }
+  trackByKey(index: number, item: any): string {
+    return item.key;
+  }
+
+  trackByValue(index: number, item: any): any {
+    return item?.value ?? index;
+  }
+  onSubmit(): void {
+    if (this.editUserForm.valid) {
+      const userDto: CreateOrEditUserDto = this.editUserForm.value;
+
+      const fileParameters = this.fileList
+        .filter(file => file.originFileObj)
+        .map(file => ({
+          data: file.originFileObj as File,
+          fileName: (file.originFileObj as File).name
+        }));
+
+      const upload$ =
+        fileParameters.length > 0
+          ? this.avatarUpload.uploadAvatar(fileParameters as any)
+          : of({ paths: [], publicIds: [] } as UploadAvatarResult);
+
+      upload$.pipe(
+        switchMap(uploadResult => {
+          if (uploadResult.paths.length > 0) {
+            userDto.avatar = uploadResult.paths[0];
+            userDto.avatarPublicId = uploadResult.publicIds[0];
+          } else if (!userDto.avatar) {
+            userDto.avatarPublicId = undefined;
+          } else {
+            userDto.avatarPublicId = this.data.userData?.avatarPublicId;
+          }
+          userDto.id = this.data.userData?.id;
+          return this.serviceProxy.createOrEditUser(userDto);
+        })
+      ).subscribe(() => {
+        this.editUserForm.reset();
+        this.clearImages();
+        this.saved.emit();
+      }, (error: any) => {
+        console.error('Error creating user:', error);
+      });
+    }
+  }
+  private clearImages(): void {
+    // Revoke any object URLs created with URL.createObjectURL to avoid memory leaks
+    this.fileList.forEach(f => {
+      const thumb = (f as any).thumnbUrl;
+      if (typeof thumb === 'string' && thumb.startsWith('blob:')) {
+        try {
+          URL.revokeObjectURL(thumb);
+        } catch (e) {
+          // ignore revoke errors
+        }
+      }
+    });
+    this.fileList = [];
+    this.previewImage = '';
+    this.previewVisible = false;
+  }
+  ngOnInit(): void {
+    this.lstDistricts = this.memoryCache.get('districts') || [];
+    this.lstProvinces = this.memoryCache.get('provinces') || [];
+    this.lstWards = this.memoryCache.get('wards') || [];
+    this.lstRoleGroups = this.memoryCache.get('roleGroups') || [];
+    this.initializeFormControls();
+    if (this.data.userData) {
+      this.editUserForm.patchValue(this.data.userData);
+      if (this.data.userData.avatar && this.data.userData.avatar.length > 0) {
+        const avatarUrl = resolveAssetUrl(this.baseUrl, this.data.userData.avatar);
+        var file: NzUploadFile = {
+          uid: `1`,
+          name: `image-1`,
+          status: 'done' as const,
+          url: avatarUrl,
+          thumbUrl: avatarUrl
+        };
+        this.fileList.push(file);
+      }
+    }
+  }
+}

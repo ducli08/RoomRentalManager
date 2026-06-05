@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoomRentalManagerServer.API", "RoomRentalManagerServer.API\RoomRentalManagerServer.API.csproj", "{6E2E5E0D-7E0C-42BE-A9E3-CC9BD2CBEA90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoomRentalManagerServer.Application", "RoomRentalManagerServer.Application\RoomRentalManagerServer.Application.csproj", "{3BF26BF7-4637-4468-AC9A-00B05489E43A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoomRentalManagerServer.Infrastructure", "RoomRentalManagerServer.Infrastructure\RoomRentalManagerServer.Infrastructure.csproj", "{329EEB6A-ABB3-46BB-B133-D1CBE36B6BFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoomRentalManagerServer.Domain", "RoomRentalManagerServer.Domain\RoomRentalManagerServer.Domain.csproj", "{4194392B-1492-44FE-BBD9-D552593592FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E2E5E0D-7E0C-42BE-A9E3-CC9BD2CBEA90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E2E5E0D-7E0C-42BE-A9E3-CC9BD2CBEA90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E2E5E0D-7E0C-42BE-A9E3-CC9BD2CBEA90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E2E5E0D-7E0C-42BE-A9E3-CC9BD2CBEA90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BF26BF7-4637-4468-AC9A-00B05489E43A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BF26BF7-4637-4468-AC9A-00B05489E43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BF26BF7-4637-4468-AC9A-00B05489E43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BF26BF7-4637-4468-AC9A-00B05489E43A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{329EEB6A-ABB3-46BB-B133-D1CBE36B6BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{329EEB6A-ABB3-46BB-B133-D1CBE36B6BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{329EEB6A-ABB3-46BB-B133-D1CBE36B6BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{329EEB6A-ABB3-46BB-B133-D1CBE36B6BFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4194392B-1492-44FE-BBD9-D552593592FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4194392B-1492-44FE-BBD9-D552593592FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4194392B-1492-44FE-BBD9-D552593592FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4194392B-1492-44FE-BBD9-D552593592FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

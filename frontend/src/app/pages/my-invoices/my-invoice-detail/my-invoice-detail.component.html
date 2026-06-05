@@ -1,0 +1,75 @@
+<a routerLink="/main/my-invoices">← Quay lại</a>
+
+<nz-card [nzLoading]="loading" nzTitle="Chi tiết hóa đơn">
+  <nz-descriptions nzBordered [nzColumn]="2">
+    <nz-descriptions-item nzTitle="Invoice ID">{{ invoice?.id }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Contract ID">{{ invoice?.contractId }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Ngày hóa đơn">{{ invoice?.invoiceDate | date: 'dd/MM/yyyy' }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Hạn thanh toán">{{ invoice?.dueDate | date: 'dd/MM/yyyy' }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Tổng">{{ money(invoice?.totalAmount) }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Đã trả">{{ money(invoice?.amountPaid) }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Còn lại">{{ money(invoice?.balanceDue) }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Trạng thái">
+      <nz-tag>{{ statusLabel() }}</nz-tag>
+      <nz-tag *ngIf="invoice?.isOverdue" nzColor="red">Quá hạn</nz-tag>
+    </nz-descriptions-item>
+  </nz-descriptions>
+
+  <div class="section">
+    <button nz-button nzType="primary" (click)="createIntent()" [nzLoading]="intentLoading">
+      Tạo mã thanh toán (QR)
+    </button>
+  </div>
+
+  <nz-card *ngIf="intent" class="section" nzTitle="Thông tin chuyển khoản">
+    <nz-descriptions nzBordered [nzColumn]="2">
+      <nz-descriptions-item nzTitle="Số tiền">{{ money(intent.amount) }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Nội dung CK">{{ intent.transferContent }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Ngân hàng">{{ intent.bankCode }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Số tài khoản">{{ intent.accountNumber }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Tên tài khoản">{{ intent.accountName }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="QR">
+        <ng-container *ngIf="qrImageSrc(); else noQr">
+          <img class="qr" [src]="qrImageSrc()!" alt="QR" />
+        </ng-container>
+        <ng-template #noQr>-</ng-template>
+      </nz-descriptions-item>
+    </nz-descriptions>
+
+    <form nz-form class="section">
+      <nz-form-item>
+        <nz-form-label>Số tiền khai báo</nz-form-label>
+        <nz-form-control>
+          <input nz-input type="number" [(ngModel)]="declaredAmount" name="declaredAmount" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Chứng từ</nz-form-label>
+        <nz-form-control>
+          <input type="file" accept="image/png,image/jpeg" (change)="onFileChange($event)" />
+        </nz-form-control>
+      </nz-form-item>
+      <button nz-button nzType="primary" (click)="submitEvidence()" [nzLoading]="submitLoading">
+        Gửi chứng từ
+      </button>
+    </form>
+  </nz-card>
+
+  <nz-card *ngIf="lastSubmission" class="section" nzTitle="Submission gần nhất">
+    <nz-descriptions nzBordered [nzColumn]="2">
+      <nz-descriptions-item nzTitle="Submission ID">{{ lastSubmission.id }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Số tiền khai báo">{{ money(lastSubmission.declaredAmount) }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Trạng thái">
+        <nz-tag>{{ submissionStatusLabel() }}</nz-tag>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Lý do từ chối">{{ lastSubmission.rejectedReason || '-' }}</nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Chứng từ">
+        <ng-container *ngIf="evidenceSrc(); else noEvidence">
+          <img class="evidence" [src]="evidenceSrc()!" alt="Evidence" />
+        </ng-container>
+        <ng-template #noEvidence>-</ng-template>
+      </nz-descriptions-item>
+    </nz-descriptions>
+  </nz-card>
+</nz-card>
+

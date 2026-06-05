@@ -1,0 +1,5 @@
+image: gitpod/workspace-dotnet
+
+tasks:
+  - init: cd backend && dotnet build RoomRentalManagerServer.sln
+    command: cd backend && dotnet run --project RoomRentalManagerServer.API --launch-profile https

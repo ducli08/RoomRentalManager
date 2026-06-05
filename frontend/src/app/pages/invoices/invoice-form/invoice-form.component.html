@@ -1,0 +1,38 @@
+<a routerLink="/main/invoices">← Quay lại</a>
+
+<nz-card [nzLoading]="loading" [nzTitle]="isEdit ? 'Chỉnh sửa hóa đơn' : 'Tạo hóa đơn'">
+  <form nz-form>
+    <nz-form-item>
+      <nz-form-label>Contract ID</nz-form-label>
+      <nz-form-control>
+        <input nz-input type="number" [(ngModel)]="dto.contractId" name="contractId" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label>Ngày hóa đơn</nz-form-label>
+      <nz-form-control>
+        <nz-date-picker [(ngModel)]="dto.invoiceDate" name="invoiceDate"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label>Hạn thanh toán</nz-form-label>
+      <nz-form-control>
+        <nz-date-picker [(ngModel)]="dto.dueDate" name="dueDate"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label>Tổng tiền</nz-form-label>
+      <nz-form-control>
+        <input nz-input type="number" [(ngModel)]="dto.totalAmount" name="totalAmount" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <button nz-button nzType="primary" (click)="save()" [nzLoading]="saving">
+      Lưu
+    </button>
+  </form>
+</nz-card>
+

@@ -1,0 +1,38 @@
+<a routerLink="/main/invoices">← Quay lại</a>
+
+<nz-card [nzLoading]="loading" nzTitle="Chi tiết hóa đơn (Admin)">
+  <nz-descriptions nzBordered [nzColumn]="2">
+    <nz-descriptions-item nzTitle="Invoice ID">{{ invoice?.id }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Contract ID">{{ invoice?.contractId }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Ngày hóa đơn">{{ invoice?.invoiceDate | date: 'dd/MM/yyyy' }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Hạn thanh toán">{{ invoice?.dueDate | date: 'dd/MM/yyyy' }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Tổng">{{ money(invoice?.totalAmount) }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Đã trả">{{ money(invoice?.amountPaid) }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Còn lại">{{ money(invoice?.balanceDue) }}</nz-descriptions-item>
+    <nz-descriptions-item nzTitle="Trạng thái">
+      <nz-tag>{{ statusLabel() }}</nz-tag>
+      <nz-tag *ngIf="invoice?.isOverdue" nzColor="red">Quá hạn</nz-tag>
+    </nz-descriptions-item>
+  </nz-descriptions>
+
+  <div class="actions">
+    <button nz-button nzType="default" (click)="edit()">Sửa</button>
+    <button nz-button nzType="primary" (click)="confirmIssue()" [disabled]="actionLoading">Issue</button>
+    <button nz-button nzDanger (click)="confirmCancel()" [disabled]="actionLoading">Cancel</button>
+  </div>
+
+  <nz-card class="cash" nzTitle="Thanh toán tiền mặt">
+    <form nz-form>
+      <nz-form-item>
+        <nz-form-label>Ghi chú</nz-form-label>
+        <nz-form-control>
+          <input nz-input [(ngModel)]="cashNote" name="cashNote" placeholder="Tuỳ chọn" />
+        </nz-form-control>
+      </nz-form-item>
+      <button nz-button nzType="primary" (click)="confirmCashPayment()" [disabled]="actionLoading">
+        Ghi nhận tiền mặt
+      </button>
+    </form>
+  </nz-card>
+</nz-card>
+

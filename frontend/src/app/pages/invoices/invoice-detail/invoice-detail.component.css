@@ -1,0 +1,10 @@
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.cash {
+  margin-top: 16px;
+}
+

@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "path": "backend", "name": "Backend (.NET)" },
+    { "path": "frontend", "name": "Frontend (Angular)" },
+    { "path": "docs", "name": "Docs" }
+  ],
+  "settings": {
+    "dotnet.defaultSolution": "backend/RoomRentalManagerServer.sln"
+  }
+}

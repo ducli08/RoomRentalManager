@@ -1,0 +1,69 @@
+# .NET
+*.swp
+*.*~
+project.lock.json
+*.pyc
+nupkg/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+.vs/
+.nuget/
+
+# Node / Angular
+node_modules/
+/dist
+/tmp
+/out-tsc
+/bazel-out
+npm-debug.log
+yarn-error.log
+.angular/
+coverage/
+libpeerconnection.log
+testem.log
+typings/
+
+# IDEs
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.history/
+
+# VS Code (keep shared configs in frontend)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# System
+.DS_Store
+Thumbs.db
+
+# Docker
+postgres_data/

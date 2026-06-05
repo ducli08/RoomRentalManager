@@ -1,0 +1,35 @@
+<div class="header">
+  <h2>Chứng từ chờ duyệt</h2>
+  <button nz-button nzType="default" (click)="load()" [disabled]="loading">Refresh</button>
+</div>
+
+<nz-table #tbl [nzData]="submissions" [nzLoading]="loading">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Invoice</th>
+      <th>Số tiền</th>
+      <th>Người gửi</th>
+      <th>Thời gian</th>
+      <th>Trạng thái</th>
+      <th>Thao tác</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let sub of tbl.data">
+      <td>{{ sub.id }}</td>
+      <td>
+        <button nz-button nzType="link" (click)="openInvoice(sub)">#{{ sub.invoiceId }}</button>
+      </td>
+      <td>{{ money(sub.declaredAmount) }}</td>
+      <td>{{ sub.creatorUser || '-' }}</td>
+      <td>{{ sub.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+      <td><nz-tag>{{ statusLabel(sub.status) }}</nz-tag></td>
+      <td>
+        <button nz-button nzType="primary" (click)="confirmApprove(sub)" [disabled]="loading">Approve</button>
+        <button nz-button nzDanger (click)="confirmReject(sub)" [disabled]="loading">Reject</button>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
+
