@@ -11,7 +11,7 @@ export class RoomRentalUploadService {
   ) {}
 
   uploadImageDescription(files: FileParameter[]): Observable<string[]> {
-    const url = (this.baseUrl ?? 'https://localhost:7246') + `/api/RoomRental/uploadImageDescription`;
+    const url = (this.baseUrl ?? 'http://localhost:5233') + `/api/RoomRental/uploadImageDescription`;
 
     const form = new FormData();
     for (const f of files) {

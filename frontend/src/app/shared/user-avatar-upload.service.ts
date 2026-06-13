@@ -12,7 +12,7 @@ export class UserAvatarUploadService {
   ) {}
 
   uploadAvatar(files: FileParameter[]): Observable<UploadAvatarResult> {
-    const url = (this.baseUrl ?? 'https://localhost:7246') + `/api/User/uploadAvatar`;
+    const url = (this.baseUrl ?? 'http://localhost:5233') + `/api/User/uploadAvatar`;
     const form = new FormData();
     for (const f of files) {
       if (!f?.data) continue;

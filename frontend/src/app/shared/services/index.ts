@@ -4,3 +4,5 @@
 // The split files under this directory are kept for reference but are not
 // used as the primary exports.
 export * from '../service-proxies';
+export * from '../contract.models';
+export { ContractApiService } from '../contract-api.service';

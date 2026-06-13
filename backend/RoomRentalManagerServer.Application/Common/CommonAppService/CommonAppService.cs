@@ -67,6 +67,14 @@ namespace RoomRentalManagerServer.Application.Common.CommonAppService
                         Text = u.Name
                     }));
                     break;
+                case "tenant":
+                    var tenants = await _userAppService.GetAllUserForSelectListItem();
+                    tenants.ForEach(u => selectListItemDtos.Add(new SelectListItemDto
+                    {
+                        Value = u.Id.ToString(),
+                        Text = u.Name
+                    }));
+                    break;
                 case "roomRental":
                     var roomRentals = await _roomRentalAppService.GetAllRoomRentalForSelectListItem();
                     roomRentals.ForEach(r => selectListItemDtos.Add(new SelectListItemDto

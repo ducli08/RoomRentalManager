@@ -1,0 +1,56 @@
+<form nz-form>
+  <ng-container *ngFor="let row of filterPerRows">
+    <div nz-row>
+      <nz-form-item *ngFor="let field of row" nz-col nzSpan="8">
+        <nz-form-label nz-col nzSpan="10">{{ field.label }}</nz-form-label>
+        <nz-form-control nz-col nzSpan="20">
+          <nz-select *ngIf="field.type === 'select'" [(ngModel)]="contractFilterDto[field.key]" [name]="field.key"
+            [nzPlaceHolder]="field.placeholder ?? null" nzShowSearch nzAllowClear>
+            <nz-option *ngFor="let opt of field.options ? field.options() : []" [nzValue]="opt.value ?? null"
+              [nzLabel]="opt.text ?? null"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </ng-container>
+  <button nz-button nzType="primary" (click)="getAllContracts()">
+    <nz-icon nzType="search" nzTheme="outline" />Tìm kiếm
+  </button>
+  <button nz-button nzType="primary" class="btn-gap" *ngIf="hasPermission('Contract.Thêm')" (click)="openCreateModal()">
+    <nz-icon nzType="plus" nzTheme="outline" />Tạo hợp đồng
+  </button>
+</form>
+<br><br>
+<nz-table nzShowPagination nzShowSizeChanger [nzData]="contracts" [nzTotal]="total"
+  [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzLoading]="loading"
+  (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"
+  [nzScroll]="{ y: '300px' }">
+  <thead>
+    <tr>
+      <th>Tên phòng</th>
+      <th>Tên người thuê</th>
+      <th>Ngày bắt đầu</th>
+      <th>Ngày kết thúc</th>
+      <th>Tiền cọc</th>
+      <th>Tiền thuê/tháng</th>
+      <th>Trạng thái</th>
+      <th>Thao tác</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of contracts">
+      <td>{{ data.roomName }}</td>
+      <td>{{ data.tenantName }}</td>
+      <td>{{ data.startDate | date: 'dd/MM/yyyy' }}</td>
+      <td>{{ data.endDate | date: 'dd/MM/yyyy' }}</td>
+      <td>{{ data.depositAmout | number }}</td>
+      <td>{{ data.monthlyRent | number }}</td>
+      <td>{{ getStatusText(data.statusContract) }}</td>
+      <td>
+        <nz-icon nzType="eye" nzTheme="outline" (click)="openViewModal(data)" style="cursor:pointer;margin-right:8px" />
+        <nz-icon nzType="edit" nzTheme="outline" *ngIf="hasPermission('Contract.Sửa')" (click)="openEditModal(data)" style="cursor:pointer;margin-right:8px" />
+        <nz-icon nzType="delete" nzTheme="outline" *ngIf="hasPermission('Contract.Xóa')" (click)="openDeleteModal(data.id ?? 0)" style="color:#ff4d4f;cursor:pointer" />
+      </td>
+    </tr>
+  </tbody>
+</nz-table>

@@ -1,0 +1,24 @@
+<div class="create-user">
+  <form nz-form nzLayout="vertical" [formGroup]="editContractForm">
+    <input type="hidden" formControlName="id" />
+
+    <div *ngFor="let control of controlRequestArray">
+      <nz-form-item>
+        <nz-form-label [nzFor]="control.key">{{ control.label }}</nz-form-label>
+        <nz-form-control>
+          <input *ngIf="control.type === 'text' || control.type === 'number'" nz-input [formControlName]="control.key"
+            [id]="control.key" [placeholder]="control.placeholder || ''"
+            [type]="control.type === 'number' ? 'number' : 'text'" />
+
+          <nz-select *ngIf="control.type === 'select'" [formControlName]="control.key"
+            [nzPlaceHolder]="control.placeholder || 'Chọn...'" nzAllowClear nzShowSearch>
+            <nz-option *ngFor="let option of control.options ? control.options() : []" [nzValue]="option.value"
+              [nzLabel]="option.text || ''"></nz-option>
+          </nz-select>
+
+          <nz-date-picker *ngIf="control.type === 'date'" [formControlName]="control.key"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+</div>

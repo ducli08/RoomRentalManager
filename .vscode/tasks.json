@@ -1,0 +1,160 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-backend",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/backend/RoomRentalManagerServer.API/RoomRentalManagerServer.API.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "stop-full-stack",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/.vscode/stop-servers.ps1"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "run-dev-servers",
+      "type": "shell",
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "concurrently",
+        "--kill-others-on-fail",
+        "-n",
+        "BACKEND,FRONTEND",
+        "-c",
+        "blue,green",
+        "dotnet watch run --project backend/RoomRentalManagerServer.API/RoomRentalManagerServer.API.csproj",
+        "npm.cmd run start --prefix frontend"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "fullstack",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "(Application bundle generation complete|bundle generation complete)"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "group": "dev-servers",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "run-backend",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/backend/RoomRentalManagerServer.API/RoomRentalManagerServer.API.csproj"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/backend/RoomRentalManagerServer.API"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "dotnet",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "(Now listening on:|Application started\\.)"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "group": "backend-only",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "run-frontend",
+      "type": "shell",
+      "command": "npm.cmd",
+      "args": ["run", "start"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "(Application bundle generation complete|bundle generation complete)"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "dedicated",
+        "group": "frontend-only",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "open-browser",
+      "type": "shell",
+      "command": "cmd",
+      "args": ["/c", "start", "", "http://localhost:4200"],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "Run Full Stack",
+      "dependsOn": ["stop-full-stack", "run-dev-servers", "open-browser"],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "Stop Full Stack",
+      "dependsOn": ["stop-full-stack"],
+      "problemMatcher": []
+    }
+  ]
+}

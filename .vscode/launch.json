@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Full Stack",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "Write-Host '=== Full stack started ===' -ForegroundColor Green; Write-Host 'Logs: Terminal tab below (BACKEND = blue, FRONTEND = green)'",
+      "preLaunchTask": "Run Full Stack"
+    }
+  ]
+}

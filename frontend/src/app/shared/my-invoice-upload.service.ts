@@ -11,7 +11,7 @@ export class MyInvoiceUploadService {
   ) {}
 
   submitPaymentEvidence(invoiceId: number, file: File, declaredAmount: number): Observable<PaymentSubmissionDto> {
-    const url = (this.baseUrl ?? 'https://localhost:7246') + `/api/my/invoices/${invoiceId}/payment-submissions`;
+    const url = (this.baseUrl ?? 'http://localhost:5233') + `/api/my/invoices/${invoiceId}/payment-submissions`;
 
     const form = new FormData();
     // Attempt common parameter names to maximize compatibility.

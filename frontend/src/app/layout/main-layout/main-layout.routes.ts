@@ -9,6 +9,7 @@ export const MAIN_ROUTES: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'roomrentals' },
         { path: 'roomrentals', loadChildren: () => import('../../pages/roomrentals/roomrentals.routes').then(m => m.ROOMRENTALS_ROUTES), canActivate:[AuthGuard] },
+        { path: 'contracts', loadChildren: () => import('../../pages/contracts/contracts.routes').then(m => m.CONTRACTS_ROUTES), canActivate:[AuthGuard] },
         { path: 'my-invoices', loadChildren: () => import('../../pages/my-invoices/my-invoices.routes').then(m => m.MY_INVOICES_ROUTES), canActivate:[AuthGuard] },
         { path: 'invoices', loadChildren: () => import('../../pages/invoices/invoices.routes').then(m => m.INVOICES_ROUTES), canActivate:[AuthGuard] },
         { path: 'payment-submissions', loadChildren: () => import('../../pages/payment-submissions/payment-submissions.routes').then(m => m.PAYMENT_SUBMISSIONS_ROUTES), canActivate:[AuthGuard] },

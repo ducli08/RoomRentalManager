@@ -11,7 +11,7 @@ export class PaymentSubmissionAdminService {
   ) {}
 
   getPending(): Observable<PaymentSubmissionDto[]> {
-    const url = (this.baseUrl ?? 'https://localhost:7246') + `/api/payment-submissions/pending`;
+    const url = (this.baseUrl ?? 'http://localhost:5233') + `/api/payment-submissions/pending`;
     return this.http.get<any>(url).pipe(
       map((res) => {
         if (!Array.isArray(res)) return [];

@@ -6,6 +6,8 @@ namespace RoomRentalManagerServer.Domain.Interfaces.ContractInterfaces
     {
         IQueryable<Contract> Query();
         Task<Contract?> GetByIdAsync(long id, bool asNoTracking = true);
+        Task AddAsync(Contract contract);
+        Task UpdateAsync(Contract contract);
+        Task DeleteAsync(long id);
     }
 }
-

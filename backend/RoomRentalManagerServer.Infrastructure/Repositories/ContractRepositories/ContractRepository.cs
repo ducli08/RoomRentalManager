@@ -33,6 +33,68 @@ namespace RoomRentalManagerServer.Infrastructure.Repositories.ContractRepositori
                 throw;
             }
         }
+
+        public async Task AddAsync(Contract contract)
+        {
+            try
+            {
+                await _context.Contracts.AddAsync(contract);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to add contract");
+                throw;
+            }
+        }
+
+        public async Task UpdateAsync(Contract contract)
+        {
+            try
+            {
+                var existing = await _context.Contracts.FirstOrDefaultAsync(x => x.Id == contract.Id);
+                if (existing == null)
+                {
+                    throw new KeyNotFoundException($"Contract with id {contract.Id} not found.");
+                }
+
+                existing.RoomRentalId = contract.RoomRentalId;
+                existing.TenantId = contract.TenantId;
+                existing.StartDate = contract.StartDate;
+                existing.EndDate = contract.EndDate;
+                existing.DepositAmout = contract.DepositAmout;
+                existing.MonthlyRent = contract.MonthlyRent;
+                existing.StatusContract = contract.StatusContract;
+                existing.UpdatedAt = contract.UpdatedAt;
+                existing.UpdaterUser = contract.UpdaterUser;
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update contract {Id}", contract.Id);
+                throw;
+            }
+        }
+
+        public async Task DeleteAsync(long id)
+        {
+            try
+            {
+                var contract = await _context.Contracts.FirstOrDefaultAsync(x => x.Id == id);
+                if (contract == null)
+                {
+                    throw new KeyNotFoundException($"Contract with id {id} not found.");
+                }
+
+                _context.Contracts.Remove(contract);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete contract {Id}", id);
+                throw;
+            }
+        }
     }
 }
-

@@ -47,12 +47,18 @@
         </ul>
       </li>
 
-      <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home" *ngIf="showRoomRentalMenu">
+      <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home" *ngIf="showRoomRentalMenu || showContractMenu">
         <ul>
-          <li nz-menu-item nzMatchRouter>
+          <li nz-menu-item nzMatchRouter *ngIf="showRoomRentalMenu">
             <a routerLink="roomrentals">
               <i nz-icon nzType="home"></i>
               <span>Quản lý phòng trọ</span>
+            </a>
+          </li>
+          <li nz-menu-item nzMatchRouter *ngIf="showContractMenu">
+            <a routerLink="contracts">
+              <nz-icon nzType="file-text" nzTheme="outline" />
+              <span>Quản lý hợp đồng</span>
             </a>
           </li>
         </ul>

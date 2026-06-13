@@ -2,3 +2,23 @@
 app-login-layout {
   width: 100%;
 }
+
+/* Modal form dọc: label trên, input full width (contract, room rental, user, ...) */
+.create-user .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.create-user .ant-form-vertical .ant-form-item-label {
+  padding: 0 0 8px;
+}
+
+.create-user .ant-form-vertical .ant-form-item-label > label {
+  height: auto;
+}
+
+.create-user .ant-input,
+.create-user .ant-input-affix-wrapper,
+.create-user .ant-select,
+.create-user .ant-picker {
+  width: 100%;
+}

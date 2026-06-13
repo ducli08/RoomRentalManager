@@ -19,6 +19,7 @@ import { API_BASE_URL } from '../../shared/service-proxies';
 export class MainLayoutComponent implements OnInit, OnDestroy {
   showUserMenu = false;
   showRoomRentalMenu = false;
+  showContractMenu = false;
   showRoleGroupMenu = false;
   showInvoicesMenu = false;
   showMyInvoicesMenu = false;
@@ -35,6 +36,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.showUserMenu = this.hasResourcePermission('User');
     this.showRoomRentalMenu = this.hasResourcePermission('RoomRental');
+    this.showContractMenu = this.hasResourcePermission('Contract');
     this.showRoleGroupMenu = this.hasResourcePermission('RoleGroups');
     // Try common resource/controller names; backend permission naming can vary.
     this.showInvoicesMenu = this.hasResourcePermission('Invoices') || this.hasResourcePermission('Invoice');
