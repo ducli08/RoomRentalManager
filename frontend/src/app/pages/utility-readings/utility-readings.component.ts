@@ -79,6 +79,8 @@ export class UtilityReadingsComponent implements OnInit {
     this.requestDto.filter = this.filterDto;
     this.requestDto.page = this.pageIndex;
     this.requestDto.pageSize = this.pageSize;
+    this.requestDto.sortBy = '';
+    this.requestDto.sortOrder = '';
 
     forkJoin([
       this.memoryCache.get<SelectListItem[]>('roomRental') ? of(this.memoryCache.get<SelectListItem[]>('roomRental')!) : this.getSelectListItem.getSelectListItems('roomRental', ''),
@@ -104,6 +106,8 @@ export class UtilityReadingsComponent implements OnInit {
     this.requestDto.filter = filterToSend;
     this.requestDto.page = this.pageIndex;
     this.requestDto.pageSize = this.pageSize;
+    this.requestDto.sortBy = '';
+    this.requestDto.sortOrder = '';
 
     this.loading = true;
     this.utilityApi.search(this.requestDto).subscribe({

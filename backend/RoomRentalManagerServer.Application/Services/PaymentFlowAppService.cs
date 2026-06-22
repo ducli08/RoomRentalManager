@@ -314,7 +314,7 @@ namespace RoomRentalManagerServer.Application.Services
             if (contract.StatusContract != StatusContract.Active)
                 throw new UnauthorizedAccessException("Contract is not active.");
 
-            if (contract.TenantId != userId.Value)
+            if (contract.TenantId != userId.Value && !contract.TenantIds.Contains(userId.Value))
                 throw new UnauthorizedAccessException("You do not have access to this invoice.");
         }
 

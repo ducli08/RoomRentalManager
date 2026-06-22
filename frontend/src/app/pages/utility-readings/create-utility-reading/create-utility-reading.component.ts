@@ -8,16 +8,12 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import {
-  ContractApiService,
-  ContractDto,
-  ContractFilterDto,
-  ContractFilterDtoPagedRequestDto,
   CreateOrEditUtilityReadingDto,
   SelectListItem,
-  StatusContract,
   UtilityReadingApiService,
   UtilityReadingPrepareDto,
 } from '../../../shared/services';
+import { SelectListItemService } from '../../../shared/get-select-list-item.service';
 
 @Component({
   selector: 'app-create-utility-reading',
@@ -27,7 +23,7 @@ import {
 })
 export class CreateUtilityReadingComponent implements OnInit {
   form!: FormGroup;
-  lstContracts: ContractDto[] = [];
+  lstContracts: SelectListItem[] = [];
   lstMonths: SelectListItem[] = Array.from({ length: 12 }, (_, i) => new SelectListItem({ value: String(i + 1), text: `Tháng ${i + 1}` }));
   lstYears: SelectListItem[] = [];
   prepare: UtilityReadingPrepareDto | null = null;
@@ -38,7 +34,7 @@ export class CreateUtilityReadingComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private utilityApi: UtilityReadingApiService,
-    private contractApi: ContractApiService,
+    private getSelectListItem: SelectListItemService,
   ) {}
 
   ngOnInit(): void {
@@ -65,14 +61,9 @@ export class CreateUtilityReadingComponent implements OnInit {
   }
 
   loadActiveContracts(): void {
-    const req = new ContractFilterDtoPagedRequestDto();
-    req.page = 1;
-    req.pageSize = 500;
-    req.filter = new ContractFilterDto();
-    req.filter.statusContract = StatusContract.Active;
-    this.contractApi.getAllContract(req).subscribe({
-      next: (res) => {
-        this.lstContracts = res.listItem ?? [];
+    this.getSelectListItem.getSelectListItems('activeContract', '').subscribe({
+      next: (items) => {
+        this.lstContracts = items ?? [];
       },
     });
   }

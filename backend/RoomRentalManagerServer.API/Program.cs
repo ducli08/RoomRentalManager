@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RoomRentalManagerServer.Application.Interfaces;
 using RoomRentalManagerServer.Application.Model.UsersModel.UserProfileMapper;
 using RoomRentalManagerServer.Domain.Interfaces.RedisCache;
 using RoomRentalManagerServer.Domain.Interfaces.UserInterfaces;
@@ -15,6 +16,7 @@ using System.Text;
 using RoomRentalManagerServer.Domain.Model;
 using RoomRentalManagerServer.Domain.Interfaces;
 using RoomRentalManagerServer.Infrastructure.Services;
+using RoomRentalManagerServer.Application.Services;
 var builder = WebApplication.CreateBuilder(args);
 //cấu hình redis
 builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
@@ -44,6 +46,7 @@ foreach(var type in types)
         builder.Services.AddScoped(interfaceType, type);
     }
 }
+builder.Services.AddScoped<IPermissionChecker, PermissionChecker>();
 var domainAssembly = typeof(IUserRepository).Assembly;
 var infrastructureAssembly = typeof(UserRepository).Assembly;
 

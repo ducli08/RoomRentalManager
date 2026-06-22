@@ -45,45 +45,48 @@ namespace RoomRentalManagerServer.Application.Services
             try
             {
                 var query = _contractRepository.Query().AsNoTracking();
+                var filter = pagedRequestDto.Filter;
 
-                if (pagedRequestDto.Filter?.RoomRentalId > 0)
+                if (filter?.RoomRentalId > 0)
                 {
-                    query = query.Where(x => x.RoomRentalId == pagedRequestDto.Filter.RoomRentalId);
+                    query = query.Where(x => x.RoomRentalId == filter.RoomRentalId);
                 }
 
-                if (pagedRequestDto.Filter?.TenantId > 0)
+                if (filter?.TenantId > 0)
                 {
-                    query = query.Where(x => x.TenantId == pagedRequestDto.Filter.TenantId);
+                    query = query.Where(x =>
+                        x.TenantId == filter.TenantId
+                        || x.TenantIds.Contains(filter.TenantId));
                 }
 
-                if (pagedRequestDto.Filter?.StatusContract != 0)
+                if (filter?.StatusContract != 0)
                 {
-                    query = query.Where(x => x.StatusContract == pagedRequestDto.Filter.StatusContract);
+                    query = query.Where(x => x.StatusContract == filter.StatusContract);
                 }
 
-                if (pagedRequestDto.Filter?.StartDateFrom.HasValue == true)
+                if (filter?.StartDateFrom.HasValue == true)
                 {
-                    query = query.Where(x => x.StartDate >= pagedRequestDto.Filter.StartDateFrom.Value);
+                    query = query.Where(x => x.StartDate >= filter.StartDateFrom.Value);
                 }
 
-                if (pagedRequestDto.Filter?.StartDateTo.HasValue == true)
+                if (filter?.StartDateTo.HasValue == true)
                 {
-                    query = query.Where(x => x.StartDate <= pagedRequestDto.Filter.StartDateTo.Value);
+                    query = query.Where(x => x.StartDate <= filter.StartDateTo.Value);
                 }
 
-                if (pagedRequestDto.Filter?.EndDateFrom.HasValue == true)
+                if (filter?.EndDateFrom.HasValue == true)
                 {
-                    query = query.Where(x => x.EndDate >= pagedRequestDto.Filter.EndDateFrom.Value);
+                    query = query.Where(x => x.EndDate >= filter.EndDateFrom.Value);
                 }
 
-                if (pagedRequestDto.Filter?.EndDateTo.HasValue == true)
+                if (filter?.EndDateTo.HasValue == true)
                 {
-                    query = query.Where(x => x.EndDate <= pagedRequestDto.Filter.EndDateTo.Value);
+                    query = query.Where(x => x.EndDate <= filter.EndDateTo.Value);
                 }
 
-                if (!string.IsNullOrEmpty(pagedRequestDto.Filter?.CreatorUser))
+                if (!string.IsNullOrEmpty(filter?.CreatorUser))
                 {
-                    query = query.Where(x => x.CreatorUser != null && x.CreatorUser.Contains(pagedRequestDto.Filter.CreatorUser));
+                    query = query.Where(x => x.CreatorUser != null && x.CreatorUser.Contains(filter.CreatorUser));
                 }
 
                 if (!string.IsNullOrEmpty(pagedRequestDto.SortOrder) && !string.IsNullOrEmpty(pagedRequestDto.SortBy))
@@ -147,23 +150,25 @@ namespace RoomRentalManagerServer.Application.Services
 
             try
             {
-                await ValidateContractInputAsync(input, isUpdate ? input.Id : null);
+                var tenantIds = NormalizeTenantIds(input.TenantIds, input.TenantId);
+                await ValidateContractInputAsync(input, tenantIds, isUpdate ? input.Id : null);
 
                 var contract = _mapper.Map<Contract>(input);
+                contract.TenantIds = tenantIds;
+                contract.TenantId = tenantIds[0];
 
                 if (!decimal.TryParse(input.DepositAmout, out var deposit))
                 {
-                    throw new InvalidOperationException("Tiền cọc không hợp lệ.");
+                    throw new InvalidOperationException("Invalid deposit amount.");
                 }
 
                 if (!decimal.TryParse(input.MonthlyRent, out var monthlyRent))
                 {
-                    throw new InvalidOperationException("Tiền thuê hàng tháng không hợp lệ.");
+                    throw new InvalidOperationException("Invalid monthly rent.");
                 }
 
                 contract.DepositAmout = deposit;
                 contract.MonthlyRent = monthlyRent;
-
                 contract.ElectricUnitPrice = ParseDecimalOrDefault(input.ElectricUnitPrice, 4000);
                 contract.WaterUnitPrice = ParseDecimalOrDefault(input.WaterUnitPrice, 30000);
                 contract.GarbageFeePerYear = ParseDecimalOrDefault(input.GarbageFeePerYear, 150000);
@@ -205,7 +210,7 @@ namespace RoomRentalManagerServer.Application.Services
                 var hasInvoices = await _invoiceRepository.Query().AnyAsync(x => x.ContractId == id);
                 if (hasInvoices)
                 {
-                    throw new InvalidOperationException("Không thể xóa hợp đồng đã có hóa đơn liên quan.");
+                    throw new InvalidOperationException("Cannot delete a contract that already has invoices.");
                 }
 
                 await _contractRepository.DeleteAsync(id);
@@ -217,23 +222,50 @@ namespace RoomRentalManagerServer.Application.Services
             }
         }
 
-        private async Task ValidateContractInputAsync(CreateOrEditContractDto input, long? excludeContractId)
+        public async Task<List<SelectListItemDto>> GetActiveContractsForSelectListItemAsync()
+        {
+            var contracts = await _contractRepository.Query().AsNoTracking()
+                .Where(c => c.StatusContract == StatusContract.Active)
+                .OrderByDescending(c => c.UpdatedAt)
+                .ToListAsync();
+
+            var contractDtos = _mapper.Map<List<ContractDto>>(contracts);
+            await EnrichContractDtosAsync(contractDtos);
+
+            return contractDtos.Select(c => new SelectListItemDto
+            {
+                Value = c.Id.ToString(),
+                Text = $"#{c.Id} - {c.RoomName ?? ""} - {c.TenantName ?? ""}"
+            }).ToList();
+        }
+
+        private async Task ValidateContractInputAsync(CreateOrEditContractDto input, long[] tenantIds, long? excludeContractId)
         {
             if (input.EndDate < input.StartDate)
             {
-                throw new InvalidOperationException("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+                throw new InvalidOperationException("End date must be on or after start date.");
             }
 
             var roomRental = await _roomRentalRepository.GetRoomRetalById(input.RoomRentalId);
             if (roomRental == null)
             {
-                throw new InvalidOperationException("Phòng trọ không tồn tại.");
+                throw new InvalidOperationException("Room rental does not exist.");
             }
 
-            var tenant = await _userRepository.GetByIdAsync(input.TenantId);
-            if (tenant == null)
+            if (tenantIds.Length == 0)
             {
-                throw new InvalidOperationException("Người thuê không tồn tại.");
+                throw new InvalidOperationException("At least one tenant must be selected.");
+            }
+
+            var userQuery = await _userRepository.GetAllQueryAsync();
+            var existingTenantIds = await userQuery
+                .Where(u => tenantIds.Contains(u.Id))
+                .Select(u => u.Id)
+                .ToListAsync();
+
+            if (existingTenantIds.Count != tenantIds.Length)
+            {
+                throw new InvalidOperationException("One or more selected tenants do not exist.");
             }
 
             if (input.StatusContract == StatusContract.Active)
@@ -245,7 +277,7 @@ namespace RoomRentalManagerServer.Application.Services
 
                 if (hasActiveContract)
                 {
-                    throw new InvalidOperationException("Phòng trọ đã có hợp đồng đang kích hoạt.");
+                    throw new InvalidOperationException("The room already has an active contract.");
                 }
             }
         }
@@ -288,7 +320,10 @@ namespace RoomRentalManagerServer.Application.Services
             }
 
             var roomIds = contractDtos.Select(x => x.RoomRentalId).Distinct().ToList();
-            var tenantIds = contractDtos.Select(x => x.TenantId).Distinct().ToList();
+            var tenantIds = contractDtos
+                .SelectMany(x => NormalizeTenantIds(x.TenantIds, x.TenantId))
+                .Distinct()
+                .ToList();
 
             var roomQuery = await _roomRentalRepository.GetAllRoomRentalAsync();
             var rooms = await roomQuery.Where(r => roomIds.Contains(r.Id)).ToListAsync();
@@ -301,7 +336,15 @@ namespace RoomRentalManagerServer.Application.Services
             foreach (var dto in contractDtos)
             {
                 dto.RoomName = roomMap.TryGetValue(dto.RoomRentalId, out var roomName) ? roomName : null;
-                dto.TenantName = userMap.TryGetValue(dto.TenantId, out var tenantName) ? tenantName : null;
+
+                var normalizedTenantIds = NormalizeTenantIds(dto.TenantIds, dto.TenantId);
+                dto.TenantIds = normalizedTenantIds;
+                dto.TenantNames = normalizedTenantIds
+                    .Where(userMap.ContainsKey)
+                    .Select(id => userMap[id])
+                    .ToArray();
+                dto.TenantId = normalizedTenantIds.FirstOrDefault();
+                dto.TenantName = dto.TenantNames.Length > 0 ? string.Join(", ", dto.TenantNames) : null;
             }
         }
 
@@ -313,6 +356,21 @@ namespace RoomRentalManagerServer.Application.Services
             }
 
             return decimal.TryParse(value, out var parsed) ? parsed : defaultValue;
+        }
+
+        private static long[] NormalizeTenantIds(IEnumerable<long>? tenantIds, long fallbackTenantId = 0)
+        {
+            var normalized = tenantIds?
+                .Where(x => x > 0)
+                .Distinct()
+                .ToArray() ?? Array.Empty<long>();
+
+            if (normalized.Length == 0 && fallbackTenantId > 0)
+            {
+                return new[] { fallbackTenantId };
+            }
+
+            return normalized;
         }
     }
 }

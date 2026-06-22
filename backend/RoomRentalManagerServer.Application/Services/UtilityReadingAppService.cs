@@ -360,7 +360,7 @@ namespace RoomRentalManagerServer.Application.Services
             if (filter?.RoomRentalId is > 0)
                 query = query.Where(x => x.Contract.RoomRentalId == filter.RoomRentalId);
             if (filter?.TenantId is > 0)
-                query = query.Where(x => x.Contract.TenantId == filter.TenantId);
+                query = query.Where(x => x.Contract.TenantId == filter.TenantId || x.Contract.TenantIds.Contains(filter.TenantId.Value));
 
             return query.Select(x => x.Reading);
         }
@@ -374,7 +374,10 @@ namespace RoomRentalManagerServer.Application.Services
                 .Where(c => contractIds.Contains(c.Id)).ToListAsync();
 
             var roomIds = contracts.Select(c => c.RoomRentalId).Distinct().ToList();
-            var tenantIds = contracts.Select(c => c.TenantId).Distinct().ToList();
+            var tenantIds = contracts
+                .SelectMany(c => GetTenantIds(c))
+                .Distinct()
+                .ToList();
 
             var rooms = await _roomRentalRepository.GetAllRoomRentalAsync();
             var roomList = await rooms.Where(r => roomIds.Contains(r.Id)).ToListAsync();
@@ -390,16 +393,22 @@ namespace RoomRentalManagerServer.Application.Services
             {
                 if (!contractMap.TryGetValue(dto.ContractId, out var contract)) continue;
                 dto.RoomName = roomMap.TryGetValue(contract.RoomRentalId, out var rn) ? rn : null;
-                dto.TenantName = userMap.TryGetValue(contract.TenantId, out var tn) ? tn : null;
+                dto.TenantName = string.Join(", ", GetTenantIds(contract)
+                    .Where(userMap.ContainsKey)
+                    .Select(id => userMap[id]));
             }
         }
 
         private async Task EnrichContractNamesAsync(UtilityReadingPrepareDto dto, Contract contract)
         {
             var room = await _roomRentalRepository.GetRoomRetalById(contract.RoomRentalId);
-            var tenant = await _userRepository.GetByIdAsync(contract.TenantId);
+            var users = await _userRepository.GetAllQueryAsync();
+            var tenantNames = await users
+                .Where(u => GetTenantIds(contract).Contains(u.Id))
+                .Select(u => u.Name)
+                .ToListAsync();
             dto.RoomName = room?.RoomNumber.ToString();
-            dto.TenantName = tenant?.Name;
+            dto.TenantName = string.Join(", ", tenantNames);
         }
 
         private static bool IsValidMonthYear(int month, int year, out string? error)
@@ -437,6 +446,16 @@ namespace RoomRentalManagerServer.Application.Services
         {
             if (month == 12) return (1, year + 1);
             return (month + 1, year);
+        }
+
+        private static long[] GetTenantIds(Contract contract)
+        {
+            if (contract.TenantIds is { Length: > 0 })
+            {
+                return contract.TenantIds.Where(x => x > 0).Distinct().ToArray();
+            }
+
+            return contract.TenantId > 0 ? new[] { contract.TenantId } : Array.Empty<long>();
         }
     }
 }

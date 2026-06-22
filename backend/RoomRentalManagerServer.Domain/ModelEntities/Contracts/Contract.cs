@@ -21,6 +21,9 @@ namespace RoomRentalManagerServer.Domain.ModelEntities.Contracts
         [Column("tenantId")]
         public long TenantId { get; set; }
 
+        [Column("tenantIds")]
+        public long[] TenantIds { get; set; } = Array.Empty<long>();
+
         [Column("startDate")]
         public DateTime StartDate { get; set; }
 

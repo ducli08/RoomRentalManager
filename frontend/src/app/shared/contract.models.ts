@@ -9,7 +9,9 @@ export class ContractDto {
     roomRentalId?: number;
     roomName?: string;
     tenantId?: number;
+    tenantIds?: number[];
     tenantName?: string;
+    tenantNames?: string[];
     startDate?: Date;
     endDate?: Date;
     depositAmout?: number;
@@ -52,6 +54,7 @@ export class CreateOrEditContractDto {
     id?: number;
     roomRentalId?: number;
     tenantId?: number;
+    tenantIds?: number[];
     startDate?: Date;
     endDate?: Date;
     depositAmout?: string;

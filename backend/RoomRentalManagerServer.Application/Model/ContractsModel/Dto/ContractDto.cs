@@ -16,8 +16,12 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.Dto
         [Display(Name = "Người thuê", Order = 3)]
         public long TenantId { get; set; }
 
+        public long[] TenantIds { get; set; } = Array.Empty<long>();
+
         [Display(Name = "Tên người thuê", Order = 4)]
         public string? TenantName { get; set; }
+
+        public string[] TenantNames { get; set; } = Array.Empty<string>();
 
         [Display(Name = "Ngày bắt đầu", Order = 5)]
         public DateTime StartDate { get; set; }
@@ -34,7 +38,7 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.Dto
         [Display(Name = "Đơn giá điện", Order = 9)]
         public decimal ElectricUnitPrice { get; set; }
 
-        [Display(Name = "Đơn giá nước", Order = 10)]
+        [Display(Name = "Đơn giá nước (VND/người)", Order = 10)]
         public decimal WaterUnitPrice { get; set; }
 
         [Display(Name = "Tiền rác/năm", Order = 11)]

@@ -33,6 +33,9 @@
       <th>Ngày kết thúc</th>
       <th>Tiền cọc</th>
       <th>Tiền thuê/tháng</th>
+      <th>Giá điện</th>
+      <th>Giá nước</th>
+      <th>Tiền rác/năm</th>
       <th>Trạng thái</th>
       <th>Thao tác</th>
     </tr>
@@ -45,6 +48,9 @@
       <td>{{ data.endDate | date: 'dd/MM/yyyy' }}</td>
       <td>{{ data.depositAmout | number }}</td>
       <td>{{ data.monthlyRent | number }}</td>
+      <td>{{ data.electricUnitPrice | number }} VND/kWh</td>
+      <td>{{ data.waterUnitPrice | number }} VND/người</td>
+      <td>{{ data.garbageFeePerYear | number }}</td>
       <td>{{ getStatusText(data.statusContract) }}</td>
       <td>
         <nz-icon nzType="eye" nzTheme="outline" (click)="openViewModal(data)" style="cursor:pointer;margin-right:8px" />

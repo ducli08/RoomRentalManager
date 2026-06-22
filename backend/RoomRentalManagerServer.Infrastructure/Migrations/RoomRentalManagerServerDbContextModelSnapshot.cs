@@ -128,6 +128,11 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("tenantId");
 
+                    b.Property<long[]>("TenantIds")
+                        .HasColumnType("bigint[]")
+                        .HasColumnName("tenantIds")
+                        .HasDefaultValueSql("'{}'::bigint[]");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updatedAt");

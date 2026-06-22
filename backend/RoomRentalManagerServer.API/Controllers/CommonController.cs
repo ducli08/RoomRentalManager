@@ -19,19 +19,26 @@ namespace RoomRentalManagerServer.API.Controllers
         [HttpPost("getSelectListItem")]
         public async Task<ActionResult<List<SelectListItemDto>>> GetSelectListItem(string type, string? cascadeValue)
         {
-            var selectListItemDtos = await _commonAppService.GetCustomSelectListItem(type, cascadeValue);
-            return Ok(selectListItemDtos);
+            try
+            {
+                var selectListItemDtos = await _commonAppService.GetCustomSelectListItem(type, cascadeValue ?? string.Empty);
+                return Ok(selectListItemDtos);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("getEnumSelectListItem")]
-        public async Task<ActionResult<List<SelectListItemDto>>> GetEnumSelectListItem([FromQuery]string? enumType)
+        public Task<ActionResult<List<SelectListItemDto>>> GetEnumSelectListItem([FromQuery]string? enumType)
         {
             if (string.IsNullOrEmpty(enumType))
             {
-                return BadRequest("Enum type is null!");
+                return Task.FromResult<ActionResult<List<SelectListItemDto>>>(BadRequest("Enum type is null!"));
             }
             var selectListEnum = _commonAppService.GetEnumSelectListItem(enumType);
-            return Ok(selectListEnum);
+            return Task.FromResult<ActionResult<List<SelectListItemDto>>>(Ok(selectListEnum));
         }
     }
 }

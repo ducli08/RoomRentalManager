@@ -47,6 +47,11 @@ public class RoomRentalManagerServerDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Contract>()
+            .Property(x => x.TenantIds)
+            .HasColumnType("bigint[]")
+            .HasDefaultValueSql("'{}'::bigint[]");
+
         modelBuilder.Entity<UtilityReading>()
             .HasIndex(x => new { x.ContractId, x.Month, x.Year })
             .IsUnique();

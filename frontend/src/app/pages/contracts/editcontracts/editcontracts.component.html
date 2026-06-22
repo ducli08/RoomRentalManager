@@ -11,7 +11,8 @@
             [type]="control.type === 'number' ? 'number' : 'text'" />
 
           <nz-select *ngIf="control.type === 'select'" [formControlName]="control.key"
-            [nzPlaceHolder]="control.placeholder || 'Chọn...'" nzAllowClear nzShowSearch>
+            [nzPlaceHolder]="control.placeholder || 'Chọn...'" [nzMode]="control.mode || 'default'" nzAllowClear nzShowSearch
+            [nzMaxTagCount]="'responsive'">
             <nz-option *ngFor="let option of control.options ? control.options() : []" [nzValue]="option.value"
               [nzLabel]="option.text || ''"></nz-option>
           </nz-select>

@@ -115,7 +115,7 @@ namespace RoomRentalManagerServer.Application.Services
                 var contract = await _contractRepository.GetByIdAsync(invoice.ContractId, asNoTracking: true);
                 if (contract == null) return null;
                 if (contract.StatusContract != StatusContract.Active) return null;
-                if (contract.TenantId != _currentUser.GetUserId.Value) return null;
+                if (!ContractContainsTenant(contract, _currentUser.GetUserId.Value)) return null;
 
                 return MapToDto(invoice);
             }
@@ -234,7 +234,8 @@ namespace RoomRentalManagerServer.Application.Services
                 var tenantId = _currentUser.GetUserId.Value;
                 var activeContractsQuery = _contractRepository.Query()
                     .AsNoTracking()
-                    .Where(x => x.TenantId == tenantId && x.StatusContract == StatusContract.Active);
+                    .Where(x => x.StatusContract == StatusContract.Active
+                        && (x.TenantId == tenantId || x.TenantIds.Contains(tenantId)));
 
                 var activeContractIds = activeContractsQuery.Select(x => x.Id);
 
@@ -363,6 +364,11 @@ namespace RoomRentalManagerServer.Application.Services
                    + reading.ElectricUsage * reading.ElectricUnitPrice
                    + reading.WaterUsage * reading.WaterUnitPrice
                    + garbage;
+        }
+
+        private static bool ContractContainsTenant(Contract contract, long tenantId)
+        {
+            return contract.TenantId == tenantId || contract.TenantIds.Contains(tenantId);
         }
 
         private async Task<Invoice?> GetActiveInvoiceByUtilityReadingIdAsync(long utilityReadingId)

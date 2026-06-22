@@ -3,7 +3,6 @@ using RoomRentalManagerServer.Application.Common.CommonDto;
 using RoomRentalManagerServer.Application.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 namespace RoomRentalManagerServer.Application.Common.CommonAppService
 {
@@ -16,8 +15,10 @@ namespace RoomRentalManagerServer.Application.Common.CommonAppService
         private readonly IUserAppService _userAppService;
         private readonly IRoomRentalAppService _roomRentalAppService;
         private readonly IRoleGroupAppService _roleGroupAppService;
+        private readonly IContractAppService _contractAppService;
         public CommonAppService(ILogger<CommonAppService> logger, IWardAppService wardAppService, IProvinceAppService provinceAppService,
-            IDistrictAppService districtAppService, IUserAppService userAppService, IRoomRentalAppService roomRentalAppService, IRoleGroupAppService roleGroupAppService)
+            IDistrictAppService districtAppService, IUserAppService userAppService, IRoomRentalAppService roomRentalAppService, IRoleGroupAppService roleGroupAppService,
+            IContractAppService contractAppService)
         {
             _logger = logger;
             _wardAppService = wardAppService;
@@ -26,12 +27,13 @@ namespace RoomRentalManagerServer.Application.Common.CommonAppService
             _userAppService = userAppService;
             _roomRentalAppService = roomRentalAppService;
             _roleGroupAppService = roleGroupAppService;
+            _contractAppService = contractAppService;
         }
 
         public async Task<List<SelectListItemDto>> GetCustomSelectListItem(string typeSelect, string cascadeValue)
         {
             var selectListItemDtos = new List<SelectListItemDto>();
-            switch (typeSelect)
+            switch (NormalizeTypeSelect(typeSelect))
             {
                 case "provinces":
                     var provinces = await _provinceAppService.GetAllProvincesAsync();
@@ -91,8 +93,10 @@ namespace RoomRentalManagerServer.Application.Common.CommonAppService
                         Text = r.Name.ToString()
                     }));
                     break;
+                case "activeContract":
+                    return await _contractAppService.GetActiveContractsForSelectListItemAsync();
                 default:
-                    throw new ArgumentException("Invalid typeSelect provided");
+                    throw new ArgumentException($"Invalid typeSelect provided: '{typeSelect}'.");
             }
             return selectListItemDtos;
         }
@@ -156,5 +160,25 @@ namespace RoomRentalManagerServer.Application.Common.CommonAppService
             return enumValue.ToString();
         }
 
+        private static string NormalizeTypeSelect(string? typeSelect)
+        {
+            if (string.IsNullOrWhiteSpace(typeSelect))
+            {
+                throw new ArgumentException("typeSelect is required.");
+            }
+
+            return typeSelect.Trim().ToLowerInvariant() switch
+            {
+                "province" or "provinces" => "provinces",
+                "district" or "districts" => "districts",
+                "ward" or "wards" => "wards",
+                "user" or "users" => "user",
+                "tenant" or "tenants" => "tenant",
+                "roomrental" or "roomrentals" => "roomRental",
+                "rolegroup" or "rolegroups" => "roleGroups",
+                "activecontract" or "activecontracts" => "activeContract",
+                _ => typeSelect.Trim()
+            };
+        }
     }
 }

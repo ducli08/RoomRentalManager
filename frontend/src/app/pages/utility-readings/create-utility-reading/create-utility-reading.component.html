@@ -4,8 +4,7 @@
       <nz-form-label>Hợp đồng (Active)</nz-form-label>
       <nz-form-control>
         <nz-select formControlName="contractId" nzPlaceHolder="Chọn hợp đồng" nzShowSearch nzAllowClear>
-          <nz-option *ngFor="let c of lstContracts" [nzValue]="c.id"
-            [nzLabel]="'#' + c.id + ' - ' + (c.roomName || '') + ' - ' + (c.tenantName || '')"></nz-option>
+          <nz-option *ngFor="let c of lstContracts" [nzValue]="+c.value!" [nzLabel]="c.text ?? ''"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
@@ -79,7 +78,7 @@
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
-      <nz-form-label>Đơn giá nước (snapshot)</nz-form-label>
+      <nz-form-label>Đơn giá nước (VND/người, snapshot)</nz-form-label>
       <nz-form-control>
         <input nz-input [value]="prepare?.waterUnitPrice ?? ''" readonly />
       </nz-form-control>

@@ -35,6 +35,7 @@ export class CreateContractsComponent implements OnInit {
     options?: () => SelectListItem[];
     placeholder?: string;
     validators?: any[];
+    mode?: 'default' | 'multiple';
   }> = [];
 
   constructor(
@@ -66,13 +67,13 @@ export class CreateContractsComponent implements OnInit {
   initializeFormControls(): void {
     this.controlRequestArray = [
       { label: 'Phòng trọ', key: 'roomRentalId', type: 'select', options: () => this.lstRoomRentals, placeholder: 'Chọn phòng', validators: [Validators.required] },
-      { label: 'Người thuê', key: 'tenantId', type: 'select', options: () => this.lstTenants, placeholder: 'Chọn người thuê', validators: [Validators.required] },
+      { label: 'Người thuê', key: 'tenantIds', type: 'select', options: () => this.lstTenants, placeholder: 'Chọn người thuê', validators: [Validators.required], mode: 'multiple' },
       { label: 'Ngày bắt đầu', key: 'startDate', type: 'date', placeholder: 'Chọn ngày bắt đầu', validators: [Validators.required] },
       { label: 'Ngày kết thúc', key: 'endDate', type: 'date', placeholder: 'Chọn ngày kết thúc', validators: [Validators.required] },
       { label: 'Tiền cọc', key: 'depositAmout', type: 'number', placeholder: 'Nhập tiền cọc', validators: [Validators.required] },
       { label: 'Tiền thuê hàng tháng', key: 'monthlyRent', type: 'number', placeholder: 'Nhập tiền thuê', validators: [Validators.required] },
       { label: 'Đơn giá điện (VND/kWh)', key: 'electricUnitPrice', type: 'number', placeholder: '4000', validators: [Validators.required] },
-      { label: 'Đơn giá nước (VND/m³)', key: 'waterUnitPrice', type: 'number', placeholder: '30000', validators: [Validators.required] },
+      { label: 'Đơn giá nước (VND/người)', key: 'waterUnitPrice', type: 'number', placeholder: '30000', validators: [Validators.required] },
       { label: 'Tiền rác/năm', key: 'garbageFeePerYear', type: 'number', placeholder: '150000', validators: [Validators.required] },
       { label: 'Trạng thái', key: 'statusContract', type: 'select', options: () => this.lstStatusContracts, placeholder: 'Chọn trạng thái', validators: [Validators.required] },
     ];
@@ -82,6 +83,7 @@ export class CreateContractsComponent implements OnInit {
       const defaultValue = control.key === 'electricUnitPrice' ? 4000
         : control.key === 'waterUnitPrice' ? 30000
         : control.key === 'garbageFeePerYear' ? 150000
+        : control.key === 'tenantIds' ? []
         : null;
       formControls[control.key] = [defaultValue, control.validators || []];
     });
@@ -95,7 +97,8 @@ export class CreateContractsComponent implements OnInit {
     const dto = new CreateOrEditContractDto();
     dto.id = 0;
     dto.roomRentalId = Number(raw.roomRentalId);
-    dto.tenantId = Number(raw.tenantId);
+    dto.tenantIds = (raw.tenantIds ?? []).map((value: string | number) => Number(value));
+    dto.tenantId = dto.tenantIds[0] ?? 0;
     dto.startDate = raw.startDate;
     dto.endDate = raw.endDate;
     dto.depositAmout = String(raw.depositAmout);

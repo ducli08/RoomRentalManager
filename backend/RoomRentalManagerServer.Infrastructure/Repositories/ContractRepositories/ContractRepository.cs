@@ -60,10 +60,14 @@ namespace RoomRentalManagerServer.Infrastructure.Repositories.ContractRepositori
 
                 existing.RoomRentalId = contract.RoomRentalId;
                 existing.TenantId = contract.TenantId;
+                existing.TenantIds = contract.TenantIds;
                 existing.StartDate = contract.StartDate;
                 existing.EndDate = contract.EndDate;
                 existing.DepositAmout = contract.DepositAmout;
                 existing.MonthlyRent = contract.MonthlyRent;
+                existing.ElectricUnitPrice = contract.ElectricUnitPrice;
+                existing.WaterUnitPrice = contract.WaterUnitPrice;
+                existing.GarbageFeePerYear = contract.GarbageFeePerYear;
                 existing.StatusContract = contract.StatusContract;
                 existing.UpdatedAt = contract.UpdatedAt;
                 existing.UpdaterUser = contract.UpdaterUser;

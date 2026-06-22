@@ -9,5 +9,6 @@ namespace RoomRentalManagerServer.Application.Interfaces
         Task<ContractDto?> GetContractByIdAsync(long id);
         Task<bool> CreateOrEditContractAsync(CreateOrEditContractDto input);
         Task DeleteContractAsync(long id);
+        Task<List<SelectListItemDto>> GetActiveContractsForSelectListItemAsync();
     }
 }

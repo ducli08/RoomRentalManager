@@ -214,6 +214,7 @@ public class UtilityReadingFlowTests
         {
             RoomRentalId = 1,
             TenantId = 10,
+            TenantIds = new[] { 10L },
             StartDate = new DateTime(2025, 1, 1),
             EndDate = new DateTime(2025, 12, 31),
             DepositAmout = 0,

@@ -31,6 +31,7 @@ public class InvoicePaymentFlowTests
         {
             RoomRentalId = 1,
             TenantId = 10,
+            TenantIds = new[] { 10L },
             StartDate = DateTime.UtcNow.AddDays(-1),
             EndDate = DateTime.UtcNow.AddMonths(6),
             DepositAmout = 0,
@@ -107,6 +108,7 @@ public class InvoicePaymentFlowTests
         {
             RoomRentalId = 1,
             TenantId = 999,
+            TenantIds = new[] { 999L },
             StartDate = DateTime.UtcNow.AddDays(-1),
             EndDate = DateTime.UtcNow.AddMonths(6),
             DepositAmout = 0,
@@ -142,6 +144,54 @@ public class InvoicePaymentFlowTests
         await invoiceApp.IssueAsync(invoice.Id);
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() => paymentFlowTenant.CreatePaymentIntentAsync(invoice.Id));
+    }
+
+    [Fact]
+    public async Task SecondaryTenantInTenantIds_CanAccessInvoice()
+    {
+        var (db, invoiceApp, paymentFlowTenant, _) = CreateServices();
+
+        var contract = new Contract
+        {
+            RoomRentalId = 1,
+            TenantId = 999,
+            TenantIds = new[] { 999L, 10L },
+            StartDate = DateTime.UtcNow.AddDays(-1),
+            EndDate = DateTime.UtcNow.AddMonths(6),
+            DepositAmout = 0,
+            MonthlyRent = 0,
+            StatusContract = StatusContract.Active,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            CreatorUser = "seed",
+            UpdaterUser = "seed"
+        };
+        db.Contracts.Add(contract);
+        db.BankAccounts.Add(new BankAccount
+        {
+            BankCode = "VCB",
+            AccountNumber = "0123456789",
+            AccountName = "TEST",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            CreatorUser = "seed",
+            LastUpdateUser = "seed"
+        });
+        await db.SaveChangesAsync();
+
+        await invoiceApp.CreateOrEditAsync(new CreateOrEditInvoiceDto
+        {
+            ContractId = contract.Id,
+            InvoiceDate = DateTime.UtcNow.Date,
+            DueDate = DateTime.UtcNow.AddDays(7),
+            TotalAmount = 100m
+        });
+        var invoice = await db.Invoices.AsNoTracking().OrderByDescending(x => x.Id).FirstAsync();
+        await invoiceApp.IssueAsync(invoice.Id);
+
+        var intent = await paymentFlowTenant.CreatePaymentIntentAsync(invoice.Id);
+        Assert.Equal(invoice.Id, intent.InvoiceId);
     }
 
     private static (RoomRentalManagerServerDbContext Db, IInvoiceAppService InvoiceApp, IPaymentFlowAppService PaymentFlowTenant, IPaymentFlowAppService PaymentFlowAdmin) CreateServices()
