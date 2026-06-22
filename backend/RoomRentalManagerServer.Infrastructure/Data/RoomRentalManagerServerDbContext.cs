@@ -14,6 +14,7 @@ using RoomRentalManagerServer.Domain.ModelEntities.RoleGroups;
 using RoomRentalManagerServer.Domain.ModelEntities.Roles;
 using RoomRentalManagerServer.Domain.ModelEntities.RoomEquipments;
 using RoomRentalManagerServer.Domain.ModelEntities.RoomRentals;
+using RoomRentalManagerServer.Domain.ModelEntities.UtilityReadings;
 using RoomRentalManagerServer.Domain.ModelEntities.User;
 using RoomRentalManagerServer.Domain.ModelEntities.Wards;
 namespace RoomRentalManagerServer.Infrastructure.Data;
@@ -26,6 +27,7 @@ public class RoomRentalManagerServerDbContext : DbContext
     public DbSet<RoomRental> RoomRentals { get; set; }  
     public DbSet<ImagesDescription> ImagesDescriptions { get; set; }
     public DbSet<Contract> Contracts { get; set; }
+    public DbSet<UtilityReading> UtilityReadings { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<PaymentSubmission> PaymentSubmissions { get; set; }
@@ -44,5 +46,9 @@ public class RoomRentalManagerServerDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<UtilityReading>()
+            .HasIndex(x => new { x.ContractId, x.Month, x.Year })
+            .IsUnique();
     }
 }

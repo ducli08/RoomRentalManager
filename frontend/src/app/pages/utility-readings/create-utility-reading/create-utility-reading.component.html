@@ -1,0 +1,88 @@
+<div>
+  <form nz-form nzLayout="vertical" [formGroup]="form">
+    <nz-form-item>
+      <nz-form-label>Hợp đồng (Active)</nz-form-label>
+      <nz-form-control>
+        <nz-select formControlName="contractId" nzPlaceHolder="Chọn hợp đồng" nzShowSearch nzAllowClear>
+          <nz-option *ngFor="let c of lstContracts" [nzValue]="c.id"
+            [nzLabel]="'#' + c.id + ' - ' + (c.roomName || '') + ' - ' + (c.tenantName || '')"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <div nz-row [nzGutter]="16">
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>Tháng</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="month">
+              <nz-option *ngFor="let m of lstMonths" [nzValue]="+m.value!" [nzLabel]="m.text!"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>Năm</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="year">
+              <nz-option *ngFor="let y of lstYears" [nzValue]="+y.value!" [nzLabel]="y.text!"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <nz-alert *ngIf="prepare && !prepare.canSave" nzType="warning" [nzMessage]="prepare.message || ''" nzShowIcon class="mb-16"></nz-alert>
+
+    <nz-form-item>
+      <nz-form-label>Chỉ số điện cũ (readonly)</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="prepare?.oldElectricIndex ?? 0" readonly />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>Chỉ số điện mới</nz-form-label>
+      <nz-form-control>
+        <input nz-input type="number" formControlName="newElectricIndex" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>Tiêu thụ điện</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="electricUsage" readonly />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>Đơn giá điện (snapshot)</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="prepare?.electricUnitPrice ?? ''" readonly />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label>Chỉ số nước cũ (readonly)</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="prepare?.oldWaterIndex ?? 0" readonly />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>Chỉ số nước mới</nz-form-label>
+      <nz-form-control>
+        <input nz-input type="number" formControlName="newWaterIndex" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>Tiêu thụ nước</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="waterUsage" readonly />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label>Đơn giá nước (snapshot)</nz-form-label>
+      <nz-form-control>
+        <input nz-input [value]="prepare?.waterUnitPrice ?? ''" readonly />
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</div>

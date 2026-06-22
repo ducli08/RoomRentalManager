@@ -5,7 +5,7 @@
       "name": "Run Full Stack",
       "type": "node-terminal",
       "request": "launch",
-      "command": "Write-Host '=== Full stack started ===' -ForegroundColor Green; Write-Host 'Logs: Terminal tab below (BACKEND = blue, FRONTEND = green)'",
+      "command": "Write-Host '=== Full stack started ===' -ForegroundColor Green; Write-Host 'Backend and frontend each run in their own terminal tab.'",
       "preLaunchTask": "Run Full Stack"
     }
   ]

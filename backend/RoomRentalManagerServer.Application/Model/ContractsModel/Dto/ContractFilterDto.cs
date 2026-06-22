@@ -11,6 +11,6 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.Dto
         public DateTime? StartDateTo { get; set; }
         public DateTime? EndDateFrom { get; set; }
         public DateTime? EndDateTo { get; set; }
-        public string CreatorUser { get; set; }
+        public string? CreatorUser { get; set; }
     }
 }

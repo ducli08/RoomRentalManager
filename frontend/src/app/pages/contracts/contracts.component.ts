@@ -82,6 +82,7 @@ export class ContractsComponent implements OnInit {
     this.contractFilterDto.roomRentalId = undefined;
     this.contractFilterDto.tenantId = undefined;
     this.contractFilterDto.statusContract = undefined;
+    this.contractFilterDto.creatorUser = '';
     this.contractRequestDto.filter = this.contractFilterDto;
     this.contractRequestDto.page = this.pageIndex;
     this.contractRequestDto.pageSize = this.pageSize;

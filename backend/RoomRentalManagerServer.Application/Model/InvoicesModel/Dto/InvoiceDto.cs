@@ -6,6 +6,9 @@ namespace RoomRentalManagerServer.Application.Model.InvoicesModel.Dto
     {
         public long Id { get; set; }
         public long ContractId { get; set; }
+        public long? UtilityReadingId { get; set; }
+        public int? Month { get; set; }
+        public int? Year { get; set; }
         public DateTime InvoiceDate { get; set; }
         public DateTime DueDate { get; set; }
         public decimal TotalAmount { get; set; }

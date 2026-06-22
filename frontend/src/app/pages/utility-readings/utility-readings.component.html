@@ -1,0 +1,100 @@
+<form nz-form>
+  <div nz-row [nzGutter]="16">
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label>Tháng</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="filterDto.month" name="month" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option *ngFor="let m of lstMonths" [nzValue]="+m.value!" [nzLabel]="m.text!"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label>Năm</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="filterDto.year" name="year" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option *ngFor="let y of lstYears" [nzValue]="+y.value!" [nzLabel]="y.text!"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label>Phòng</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="filterDto.roomRentalId" name="roomRentalId" nzAllowClear nzShowSearch>
+          <nz-option *ngFor="let r of lstRoomRentals" [nzValue]="r.value" [nzLabel]="r.text ?? ''"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label>Người thuê</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="filterDto.tenantId" name="tenantId" nzAllowClear nzShowSearch>
+          <nz-option *ngFor="let t of lstTenants" [nzValue]="t.value" [nzLabel]="t.text ?? ''"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label>Trạng thái</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="filterDto.status" name="status" nzAllowClear>
+          <nz-option *ngFor="let s of lstStatus" [nzValue]="+s.value!" [nzLabel]="s.text!"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+  <button nz-button nzType="primary" (click)="loadData()">
+    <nz-icon nzType="search" nzTheme="outline" />Tìm kiếm
+  </button>
+  <button nz-button class="btn-gap" (click)="loadData()">
+    <nz-icon nzType="reload" nzTheme="outline" />Làm mới
+  </button>
+  <button nz-button nzType="primary" class="btn-gap" *ngIf="hasPermission('UtilityReading.Thêm')" (click)="openCreateModal()">
+    <nz-icon nzType="plus" nzTheme="outline" />Thêm mới
+  </button>
+  <button nz-button class="btn-gap" (click)="exportExcel()">
+    <nz-icon nzType="download" nzTheme="outline" />Xuất Excel
+  </button>
+</form>
+<br><br>
+<nz-table nzShowPagination nzShowSizeChanger [nzData]="readings" [nzTotal]="total"
+  [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzLoading]="loading"
+  (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"
+  [nzScroll]="{ x: '1600px', y: '320px' }">
+  <thead>
+    <tr>
+      <th>Phòng</th>
+      <th>Người thuê</th>
+      <th>Hợp đồng</th>
+      <th>Tháng</th>
+      <th>Năm</th>
+      <th>Điện cũ</th>
+      <th>Điện mới</th>
+      <th>Tiêu thụ điện</th>
+      <th>Nước cũ</th>
+      <th>Nước mới</th>
+      <th>Tiêu thụ nước</th>
+      <th>Trạng thái</th>
+      <th>Thao tác</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of readings">
+      <td>{{ row.roomName }}</td>
+      <td>{{ row.tenantName }}</td>
+      <td>#{{ row.contractId }}</td>
+      <td>{{ row.month }}</td>
+      <td>{{ row.year }}</td>
+      <td>{{ row.oldElectricIndex | number }}</td>
+      <td>{{ row.newElectricIndex | number }}</td>
+      <td>{{ row.electricUsage | number }}</td>
+      <td>{{ row.oldWaterIndex | number }}</td>
+      <td>{{ row.newWaterIndex | number }}</td>
+      <td>{{ row.waterUsage | number }}</td>
+      <td>{{ getStatusText(row.status) }}</td>
+      <td>
+        <nz-icon nzType="eye" nzTheme="outline" (click)="openViewModal(row)" style="cursor:pointer;margin-right:8px" />
+        <nz-icon nzType="edit" nzTheme="outline" *ngIf="hasPermission('UtilityReading.Sửa') && !row.isLockedByPayment"
+          (click)="openEditModal(row)" style="cursor:pointer" />
+      </td>
+    </tr>
+  </tbody>
+</nz-table>

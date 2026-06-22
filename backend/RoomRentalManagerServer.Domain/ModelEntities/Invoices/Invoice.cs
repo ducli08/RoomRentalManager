@@ -18,6 +18,15 @@ namespace RoomRentalManagerServer.Domain.ModelEntities.Invoices
         [Column("contractId")]
         public long ContractId { get; set; }
 
+        [Column("utilityReadingId")]
+        public long? UtilityReadingId { get; set; }
+
+        [Column("month")]
+        public int? Month { get; set; }
+
+        [Column("year")]
+        public int? Year { get; set; }
+
         [Column("invoiceDate")]
         public DateTime InvoiceDate { get; set; }
 

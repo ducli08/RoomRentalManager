@@ -1,0 +1,15 @@
+<nz-descriptions nzBordered [nzColumn]="1">
+  <nz-descriptions-item nzTitle="Phòng">{{ reading.roomName }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Người thuê">{{ reading.tenantName }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Hợp đồng">#{{ reading.contractId }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Tháng/Năm">{{ reading.month }}/{{ reading.year }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Điện cũ">{{ reading.oldElectricIndex | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Điện mới">{{ reading.newElectricIndex | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Tiêu thụ điện">{{ reading.electricUsage | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Nước cũ">{{ reading.oldWaterIndex | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Nước mới">{{ reading.newWaterIndex | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Tiêu thụ nước">{{ reading.waterUsage | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Đơn giá điện">{{ reading.electricUnitPrice | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Đơn giá nước">{{ reading.waterUnitPrice | number }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Trạng thái">{{ getStatusText() }}</nz-descriptions-item>
+</nz-descriptions>

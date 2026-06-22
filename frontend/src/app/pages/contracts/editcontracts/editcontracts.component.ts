@@ -75,6 +75,9 @@ export class EditContractsComponent implements OnInit {
       { label: 'Ngày kết thúc', key: 'endDate', type: 'date', placeholder: 'Chọn ngày kết thúc', validators: [Validators.required] },
       { label: 'Tiền cọc', key: 'depositAmout', type: 'number', placeholder: 'Nhập tiền cọc', validators: [Validators.required] },
       { label: 'Tiền thuê hàng tháng', key: 'monthlyRent', type: 'number', placeholder: 'Nhập tiền thuê', validators: [Validators.required] },
+      { label: 'Đơn giá điện (VND/kWh)', key: 'electricUnitPrice', type: 'number', placeholder: '4000', validators: [Validators.required] },
+      { label: 'Đơn giá nước (VND/m³)', key: 'waterUnitPrice', type: 'number', placeholder: '30000', validators: [Validators.required] },
+      { label: 'Tiền rác/năm', key: 'garbageFeePerYear', type: 'number', placeholder: '150000', validators: [Validators.required] },
       { label: 'Trạng thái', key: 'statusContract', type: 'select', options: () => this.lstStatusContracts, placeholder: 'Chọn trạng thái', validators: [Validators.required] },
     ];
 
@@ -94,6 +97,9 @@ export class EditContractsComponent implements OnInit {
       endDate: contract.endDate ? new Date(contract.endDate) : null,
       depositAmout: contract.depositAmout,
       monthlyRent: contract.monthlyRent,
+      electricUnitPrice: contract.electricUnitPrice ?? 4000,
+      waterUnitPrice: contract.waterUnitPrice ?? 30000,
+      garbageFeePerYear: contract.garbageFeePerYear ?? 150000,
       statusContract: contract.statusContract?.toString(),
     });
   }
@@ -110,6 +116,9 @@ export class EditContractsComponent implements OnInit {
     dto.endDate = raw.endDate;
     dto.depositAmout = String(raw.depositAmout);
     dto.monthlyRent = String(raw.monthlyRent);
+    dto.electricUnitPrice = String(raw.electricUnitPrice);
+    dto.waterUnitPrice = String(raw.waterUnitPrice);
+    dto.garbageFeePerYear = String(raw.garbageFeePerYear);
     dto.statusContract = Number(raw.statusContract) as StatusContract;
 
     this.contractApi.createOrEditContract(dto).subscribe({

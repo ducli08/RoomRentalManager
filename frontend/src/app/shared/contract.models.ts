@@ -14,6 +14,9 @@ export class ContractDto {
     endDate?: Date;
     depositAmout?: number;
     monthlyRent?: number;
+    electricUnitPrice?: number;
+    waterUnitPrice?: number;
+    garbageFeePerYear?: number;
     statusContract?: StatusContract;
     createdAt?: Date;
     updatedAt?: Date;
@@ -53,5 +56,8 @@ export class CreateOrEditContractDto {
     endDate?: Date;
     depositAmout?: string;
     monthlyRent?: string;
+    electricUnitPrice?: string;
+    waterUnitPrice?: string;
+    garbageFeePerYear?: string;
     statusContract?: StatusContract;
 }

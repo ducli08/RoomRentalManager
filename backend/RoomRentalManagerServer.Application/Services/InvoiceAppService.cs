@@ -8,6 +8,7 @@ using RoomRentalManagerServer.Domain.Interfaces.ContractInterfaces;
 using RoomRentalManagerServer.Domain.Interfaces.InvoiceInterfaces;
 using RoomRentalManagerServer.Domain.ModelEntities.Contracts;
 using RoomRentalManagerServer.Domain.ModelEntities.Invoices;
+using RoomRentalManagerServer.Domain.ModelEntities.UtilityReadings;
 
 namespace RoomRentalManagerServer.Application.Services
 {
@@ -64,6 +65,8 @@ namespace RoomRentalManagerServer.Application.Services
 
                 var existing = await _invoiceRepository.GetByIdAsync(input.Id.Value, asNoTracking: false);
                 if (existing == null) return false;
+                if (existing.UtilityReadingId.HasValue)
+                    throw new InvalidOperationException("Hóa đơn được tạo từ chỉ số điện nước chỉ có thể sửa qua module Chỉ số điện nước.");
                 if (existing.Status != InvoiceStatus.Draft)
                     throw new InvalidOperationException("Only Draft invoices can be edited.");
 
@@ -269,6 +272,9 @@ namespace RoomRentalManagerServer.Application.Services
             {
                 Id = invoice.Id,
                 ContractId = invoice.ContractId,
+                UtilityReadingId = invoice.UtilityReadingId,
+                Month = invoice.Month,
+                Year = invoice.Year,
                 InvoiceDate = invoice.InvoiceDate,
                 DueDate = invoice.DueDate,
                 TotalAmount = invoice.TotalAmount,
@@ -277,6 +283,119 @@ namespace RoomRentalManagerServer.Application.Services
                 IsOverdue = isOverdue,
                 Status = invoice.Status
             };
+        }
+
+        public async Task EnsureUtilityReadingInvoiceEditableAsync(long? utilityReadingId)
+        {
+            if (!utilityReadingId.HasValue) return;
+
+            var locked = await IsUtilityReadingInvoiceLockedByPaymentAsync(utilityReadingId);
+            if (locked)
+            {
+                throw new InvalidOperationException("Không thể sửa chỉ số vì hóa đơn đã có thanh toán.");
+            }
+        }
+
+        public async Task<bool> IsUtilityReadingInvoiceLockedByPaymentAsync(long? utilityReadingId)
+        {
+            if (utilityReadingId.HasValue)
+            {
+                var invoice = await GetActiveInvoiceByUtilityReadingIdAsync(utilityReadingId.Value);
+                if (invoice != null && (invoice.AmountPaid > 0 || invoice.Status == InvoiceStatus.Paid))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public async Task<long> GenerateOrRegenerateFromUtilityReadingAsync(UtilityReading reading, Contract contract)
+        {
+            if (!_currentUser.IsAuthenticated)
+                throw new UnauthorizedAccessException("User is not authenticated.");
+
+            await EnsureUtilityReadingInvoiceEditableAsync(reading.Id);
+
+            var existing = await GetActiveInvoiceByUtilityReadingIdAsync(reading.Id);
+            if (existing != null)
+            {
+                if (existing.Status == InvoiceStatus.Issued && existing.AmountPaid == 0)
+                {
+                    await CancelInvoiceInternalAsync(existing);
+                }
+                else if (existing.Status == InvoiceStatus.Draft)
+                {
+                    await CancelInvoiceInternalAsync(existing, allowDraft: true);
+                }
+            }
+
+            var totalAmount = CalculateTotalAmount(reading, contract);
+            var invoiceDate = new DateTime(reading.Year, reading.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var now = DateTime.UtcNow;
+
+            var invoice = new Invoice
+            {
+                ContractId = contract.Id,
+                UtilityReadingId = reading.Id,
+                Month = reading.Month,
+                Year = reading.Year,
+                InvoiceDate = invoiceDate,
+                DueDate = invoiceDate.AddDays(7),
+                TotalAmount = totalAmount,
+                AmountPaid = 0,
+                Status = InvoiceStatus.Issued,
+                IssuedAt = now,
+                CreatedAt = now,
+                UpdatedAt = now,
+                CreatorUser = _currentUser.UserName ?? "system",
+                LastUpdateUser = _currentUser.UserName ?? "system"
+            };
+
+            await _invoiceRepository.AddAsync(invoice);
+            return invoice.Id;
+        }
+
+        private static decimal CalculateTotalAmount(UtilityReading reading, Contract contract)
+        {
+            var garbage = reading.Month == 1 ? contract.GarbageFeePerYear : 0;
+            return contract.MonthlyRent
+                   + reading.ElectricUsage * reading.ElectricUnitPrice
+                   + reading.WaterUsage * reading.WaterUnitPrice
+                   + garbage;
+        }
+
+        private async Task<Invoice?> GetActiveInvoiceByUtilityReadingIdAsync(long utilityReadingId)
+        {
+            return await _invoiceRepository.Query()
+                .Where(x => x.UtilityReadingId == utilityReadingId && x.Status != InvoiceStatus.Cancelled)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
+        }
+
+        private async Task CancelInvoiceInternalAsync(Invoice invoice, bool allowDraft = false)
+        {
+            if (invoice.Status == InvoiceStatus.Issued)
+            {
+                if (invoice.AmountPaid > 0)
+                    throw new InvalidOperationException("Cannot cancel an invoice that has collected any payment.");
+
+                invoice.Status = InvoiceStatus.Cancelled;
+            }
+            else if (invoice.Status == InvoiceStatus.Draft && allowDraft)
+            {
+                invoice.Status = InvoiceStatus.Cancelled;
+            }
+            else
+            {
+                throw new InvalidOperationException("Only Issued or Draft invoices can be cancelled for regeneration.");
+            }
+
+            var now = DateTime.UtcNow;
+            invoice.CancelledAt = now;
+            invoice.UpdatedAt = now;
+            invoice.LastUpdateUser = _currentUser.UserName ?? "system";
+            await _invoiceRepository.UpdateAsync(invoice);
         }
     }
 }

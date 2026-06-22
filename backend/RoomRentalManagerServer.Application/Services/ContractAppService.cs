@@ -164,6 +164,10 @@ namespace RoomRentalManagerServer.Application.Services
                 contract.DepositAmout = deposit;
                 contract.MonthlyRent = monthlyRent;
 
+                contract.ElectricUnitPrice = ParseDecimalOrDefault(input.ElectricUnitPrice, 4000);
+                contract.WaterUnitPrice = ParseDecimalOrDefault(input.WaterUnitPrice, 30000);
+                contract.GarbageFeePerYear = ParseDecimalOrDefault(input.GarbageFeePerYear, 150000);
+
                 if (isUpdate)
                 {
                     contract.Id = input.Id!.Value;
@@ -299,6 +303,16 @@ namespace RoomRentalManagerServer.Application.Services
                 dto.RoomName = roomMap.TryGetValue(dto.RoomRentalId, out var roomName) ? roomName : null;
                 dto.TenantName = userMap.TryGetValue(dto.TenantId, out var tenantName) ? tenantName : null;
             }
+        }
+
+        private static decimal ParseDecimalOrDefault(string? value, decimal defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return defaultValue;
+            }
+
+            return decimal.TryParse(value, out var parsed) ? parsed : defaultValue;
         }
     }
 }

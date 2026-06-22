@@ -96,9 +96,17 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("depositAmout");
 
+                    b.Property<decimal>("ElectricUnitPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("electricUnitPrice");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("endDate");
+
+                    b.Property<decimal>("GarbageFeePerYear")
+                        .HasColumnType("numeric")
+                        .HasColumnName("garbageFeePerYear");
 
                     b.Property<decimal>("MonthlyRent")
                         .HasColumnType("numeric")
@@ -128,6 +136,10 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("updaterUser");
+
+                    b.Property<decimal>("WaterUnitPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("waterUnitPrice");
 
                     b.HasKey("Id");
 
@@ -337,6 +349,10 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("lastUpdateUser");
 
+                    b.Property<int?>("Month")
+                        .HasColumnType("integer")
+                        .HasColumnName("month");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("invoiceStatus");
@@ -348,6 +364,14 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updatedAt");
+
+                    b.Property<long?>("UtilityReadingId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("utilityReadingId");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
 
                     b.HasKey("Id");
 
@@ -924,6 +948,89 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("user");
+                });
+
+            modelBuilder.Entity("RoomRentalManagerServer.Domain.ModelEntities.UtilityReadings.UtilityReading", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ContractId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("contractId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdAt");
+
+                    b.Property<string>("CreatorUser")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("creatorUser");
+
+                    b.Property<decimal>("ElectricUnitPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("electricUnitPrice");
+
+                    b.Property<decimal>("ElectricUsage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("electricUsage");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer")
+                        .HasColumnName("month");
+
+                    b.Property<decimal>("NewElectricIndex")
+                        .HasColumnType("numeric")
+                        .HasColumnName("newElectricIndex");
+
+                    b.Property<decimal>("NewWaterIndex")
+                        .HasColumnType("numeric")
+                        .HasColumnName("newWaterIndex");
+
+                    b.Property<decimal>("OldElectricIndex")
+                        .HasColumnType("numeric")
+                        .HasColumnName("oldElectricIndex");
+
+                    b.Property<decimal>("OldWaterIndex")
+                        .HasColumnType("numeric")
+                        .HasColumnName("oldWaterIndex");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedAt");
+
+                    b.Property<string>("UpdaterUser")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("updaterUser");
+
+                    b.Property<decimal>("WaterUnitPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("waterUnitPrice");
+
+                    b.Property<decimal>("WaterUsage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("waterUsage");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId", "Month", "Year")
+                        .IsUnique();
+
+                    b.ToTable("utilityReading");
                 });
 
             modelBuilder.Entity("RoomRentalManagerServer.Domain.ModelEntities.Wards.Ward", b =>

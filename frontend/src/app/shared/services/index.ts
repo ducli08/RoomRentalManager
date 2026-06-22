@@ -6,3 +6,5 @@
 export * from '../service-proxies';
 export * from '../contract.models';
 export { ContractApiService } from '../contract-api.service';
+export * from '../utility-reading.models';
+export { UtilityReadingApiService } from '../utility-reading-api.service';

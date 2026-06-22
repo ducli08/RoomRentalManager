@@ -34,46 +34,12 @@
       }
     },
     {
-      "label": "run-dev-servers",
-      "type": "shell",
-      "command": "npx.cmd",
-      "args": [
-        "-y",
-        "concurrently",
-        "--kill-others-on-fail",
-        "-n",
-        "BACKEND,FRONTEND",
-        "-c",
-        "blue,green",
-        "dotnet watch run --project backend/RoomRentalManagerServer.API/RoomRentalManagerServer.API.csproj",
-        "npm.cmd run start --prefix frontend"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "isBackground": true,
-      "problemMatcher": {
-        "owner": "fullstack",
-        "pattern": {
-          "regexp": "^$"
-        },
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": ".",
-          "endsPattern": "(Application bundle generation complete|bundle generation complete)"
-        }
-      },
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "dedicated",
-        "group": "dev-servers",
-        "showReuseMessage": false
-      }
+      "label": "start-dev-servers",
+      "dependsOn": ["Backend (API)", "Frontend (Angular)"],
+      "problemMatcher": []
     },
     {
-      "label": "run-backend",
+      "label": "Backend (API)",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -107,7 +73,7 @@
       }
     },
     {
-      "label": "run-frontend",
+      "label": "Frontend (Angular)",
       "type": "shell",
       "command": "npm.cmd",
       "args": ["run", "start"],
@@ -147,7 +113,7 @@
     },
     {
       "label": "Run Full Stack",
-      "dependsOn": ["stop-full-stack", "run-dev-servers", "open-browser"],
+      "dependsOn": ["stop-full-stack", "start-dev-servers", "open-browser"],
       "dependsOrder": "sequence",
       "problemMatcher": []
     },

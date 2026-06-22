@@ -47,7 +47,7 @@
         </ul>
       </li>
 
-      <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home" *ngIf="showRoomRentalMenu || showContractMenu">
+      <li nz-submenu nzTitle="Quản lý phòng trọ" nzIcon="home" *ngIf="showRoomRentalMenu || showContractMenu || showUtilityReadingMenu">
         <ul>
           <li nz-menu-item nzMatchRouter *ngIf="showRoomRentalMenu">
             <a routerLink="roomrentals">
@@ -59,6 +59,12 @@
             <a routerLink="contracts">
               <nz-icon nzType="file-text" nzTheme="outline" />
               <span>Quản lý hợp đồng</span>
+            </a>
+          </li>
+          <li nz-menu-item nzMatchRouter *ngIf="showUtilityReadingMenu">
+            <a routerLink="utility-readings">
+              <nz-icon nzType="dashboard" nzTheme="outline" />
+              <span>Chỉ số điện nước</span>
             </a>
           </li>
         </ul>

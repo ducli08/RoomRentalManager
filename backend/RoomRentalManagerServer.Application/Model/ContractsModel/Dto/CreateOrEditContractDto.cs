@@ -11,6 +11,9 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.Dto
         public DateTime EndDate { get; set; }
         public string? DepositAmout { get; set; }
         public string? MonthlyRent { get; set; }
+        public string? ElectricUnitPrice { get; set; }
+        public string? WaterUnitPrice { get; set; }
+        public string? GarbageFeePerYear { get; set; }
         public StatusContract StatusContract { get; set; }
     }
 }

@@ -20,6 +20,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   showUserMenu = false;
   showRoomRentalMenu = false;
   showContractMenu = false;
+  showUtilityReadingMenu = false;
   showRoleGroupMenu = false;
   showInvoicesMenu = false;
   showMyInvoicesMenu = false;
@@ -37,6 +38,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.showUserMenu = this.hasResourcePermission('User');
     this.showRoomRentalMenu = this.hasResourcePermission('RoomRental');
     this.showContractMenu = this.hasResourcePermission('Contract');
+    this.showUtilityReadingMenu = this.hasResourcePermission('UtilityReading');
     this.showRoleGroupMenu = this.hasResourcePermission('RoleGroups');
     // Try common resource/controller names; backend permission naming can vary.
     this.showInvoicesMenu = this.hasResourcePermission('Invoices') || this.hasResourcePermission('Invoice');
