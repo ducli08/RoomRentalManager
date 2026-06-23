@@ -113,11 +113,12 @@ export class EditContractsComponent implements OnInit {
     if (!this.editContractForm.valid) return;
 
     const raw = this.editContractForm.value;
+    const tenantIds = (raw.tenantIds ?? []).map((value: string | number) => Number(value));
     const dto = new CreateOrEditContractDto();
     dto.id = Number(raw.id);
     dto.roomRentalId = Number(raw.roomRentalId);
-    dto.tenantIds = (raw.tenantIds ?? []).map((value: string | number) => Number(value));
-    dto.tenantId = dto.tenantIds[0] ?? 0;
+    dto.tenantIds = tenantIds;
+    dto.tenantId = tenantIds[0] ?? 0;
     dto.startDate = raw.startDate;
     dto.endDate = raw.endDate;
     dto.depositAmout = String(raw.depositAmout);

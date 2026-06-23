@@ -94,11 +94,12 @@ export class CreateContractsComponent implements OnInit {
     if (!this.createContractForm.valid) return;
 
     const raw = this.createContractForm.value;
+    const tenantIds = (raw.tenantIds ?? []).map((value: string | number) => Number(value));
     const dto = new CreateOrEditContractDto();
     dto.id = 0;
     dto.roomRentalId = Number(raw.roomRentalId);
-    dto.tenantIds = (raw.tenantIds ?? []).map((value: string | number) => Number(value));
-    dto.tenantId = dto.tenantIds[0] ?? 0;
+    dto.tenantIds = tenantIds;
+    dto.tenantId = tenantIds[0] ?? 0;
     dto.startDate = raw.startDate;
     dto.endDate = raw.endDate;
     dto.depositAmout = String(raw.depositAmout);
