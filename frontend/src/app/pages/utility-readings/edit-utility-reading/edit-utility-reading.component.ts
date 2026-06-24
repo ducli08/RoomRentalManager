@@ -23,7 +23,6 @@ export class EditUtilityReadingComponent implements OnInit {
   form!: FormGroup;
   prepare: UtilityReadingPrepareDto | null = null;
   electricUsage = 0;
-  waterUsage = 0;
   @Output() saved = new EventEmitter<void>();
 
   constructor(
@@ -36,7 +35,6 @@ export class EditUtilityReadingComponent implements OnInit {
     const r = this.data.reading;
     this.form = this.fb.group({
       newElectricIndex: [r.newElectricIndex, Validators.required],
-      newWaterIndex: [r.newWaterIndex, Validators.required],
     });
 
     this.loadPrepare();
@@ -59,11 +57,8 @@ export class EditUtilityReadingComponent implements OnInit {
 
   recalcUsage(): void {
     const newE = Number(this.form.value.newElectricIndex) || 0;
-    const newW = Number(this.form.value.newWaterIndex) || 0;
     const oldE = this.prepare?.oldElectricIndex ?? this.data.reading.oldElectricIndex ?? 0;
-    const oldW = this.prepare?.oldWaterIndex ?? this.data.reading.oldWaterIndex ?? 0;
     this.electricUsage = Math.max(0, newE - oldE);
-    this.waterUsage = Math.max(0, newW - oldW);
   }
 
   get canSubmit(): boolean {
@@ -78,7 +73,6 @@ export class EditUtilityReadingComponent implements OnInit {
     dto.month = this.data.reading.month;
     dto.year = this.data.reading.year;
     dto.newElectricIndex = Number(this.form.value.newElectricIndex);
-    dto.newWaterIndex = Number(this.form.value.newWaterIndex);
 
     this.utilityApi.update(this.data.reading.id, dto).subscribe({
       next: () => this.saved.emit(),

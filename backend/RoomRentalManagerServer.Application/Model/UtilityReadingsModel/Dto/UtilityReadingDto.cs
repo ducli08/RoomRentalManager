@@ -13,11 +13,7 @@ namespace RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto
         public decimal OldElectricIndex { get; set; }
         public decimal NewElectricIndex { get; set; }
         public decimal ElectricUsage { get; set; }
-        public decimal OldWaterIndex { get; set; }
-        public decimal NewWaterIndex { get; set; }
-        public decimal WaterUsage { get; set; }
         public decimal ElectricUnitPrice { get; set; }
-        public decimal WaterUnitPrice { get; set; }
         public UtilityReadingStatus Status { get; set; }
         public bool IsLockedByPayment { get; set; }
         public DateTime CreatedAt { get; set; }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RoomRentalManagerServer.Infrastructure.Data;
@@ -12,9 +13,11 @@ using RoomRentalManagerServer.Infrastructure.Data;
 namespace RoomRentalManagerServer.Infrastructure.Migrations
 {
     [DbContext(typeof(RoomRentalManagerServerDbContext))]
-    partial class RoomRentalManagerServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624133145_RemoveWaterIndexFromUtilityReading")]
+    partial class RemoveWaterIndexFromUtilityReading
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1011,6 +1014,10 @@ namespace RoomRentalManagerServer.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("updaterUser");
+
+                    b.Property<decimal>("WaterUnitPrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("waterUnitPrice");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer")

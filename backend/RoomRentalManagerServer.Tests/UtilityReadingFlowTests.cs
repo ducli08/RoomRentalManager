@@ -28,7 +28,6 @@ public class UtilityReadingFlowTests
 
         Assert.True(prepare.CanSave);
         Assert.Equal(0, prepare.OldElectricIndex);
-        Assert.Equal(0, prepare.OldWaterIndex);
     }
 
     [Fact]
@@ -41,13 +40,9 @@ public class UtilityReadingFlowTests
             Month = 1,
             Year = 2025,
             OldElectricIndex = 0,
-            OldWaterIndex = 0,
             NewElectricIndex = 100,
-            NewWaterIndex = 10,
             ElectricUsage = 100,
-            WaterUsage = 10,
             ElectricUnitPrice = 4000,
-            WaterUnitPrice = 30000,
             Status = UtilityReadingStatus.InvoiceGenerated,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
@@ -72,14 +67,13 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 100,
-            NewWaterIndex = 10
+            NewElectricIndex = 100
         });
 
         var invoice = await db.Invoices.AsNoTracking()
             .FirstAsync(x => x.UtilityReadingId == result.Id);
 
-        const decimal expected = 2_000_000m + (100 * 4000m) + (10 * 30_000m) + 150_000m;
+        const decimal expected = 2_000_000m + (100 * 4000m) + (1 * 30_000m) + 150_000m;
         Assert.Equal(expected, invoice.TotalAmount);
         Assert.Equal(InvoiceStatus.Issued, invoice.Status);
         Assert.Equal(UtilityReadingStatus.InvoiceGenerated, result.Status);
@@ -95,8 +89,7 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 100,
-            NewWaterIndex = 10
+            NewElectricIndex = 100
         });
 
         var feb = await utilityApp.CreateOrEditAsync(new CreateOrEditUtilityReadingDto
@@ -104,14 +97,37 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 2,
             Year = 2025,
-            NewElectricIndex = 150,
-            NewWaterIndex = 15
+            NewElectricIndex = 150
         });
 
         var invoice = await db.Invoices.AsNoTracking()
             .FirstAsync(x => x.UtilityReadingId == feb.Id);
 
-        const decimal expected = 2_000_000m + (50 * 4000m) + (5 * 30_000m);
+        const decimal expected = 2_000_000m + (50 * 4000m) + (1 * 30_000m);
+        Assert.Equal(expected, invoice.TotalAmount);
+    }
+
+    [Fact]
+    public async Task Create_MultipleTenants_WaterFeeUsesTenantCount()
+    {
+        var (utilityApp, contract, db) = CreateServices();
+        contract.TenantIds = new[] { 10L, 11L };
+        contract.TenantId = 10;
+        db.Contracts.Update(contract);
+        await db.SaveChangesAsync();
+
+        var result = await utilityApp.CreateOrEditAsync(new CreateOrEditUtilityReadingDto
+        {
+            ContractId = contract.Id,
+            Month = 1,
+            Year = 2025,
+            NewElectricIndex = 0
+        });
+
+        var invoice = await db.Invoices.AsNoTracking()
+            .FirstAsync(x => x.UtilityReadingId == result.Id);
+
+        const decimal expected = 2_000_000m + (2 * 30_000m) + 150_000m;
         Assert.Equal(expected, invoice.TotalAmount);
     }
 
@@ -125,8 +141,7 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 100,
-            NewWaterIndex = 10
+            NewElectricIndex = 100
         });
 
         var feb = await utilityApp.CreateOrEditAsync(new CreateOrEditUtilityReadingDto
@@ -134,8 +149,7 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 2,
             Year = 2025,
-            NewElectricIndex = 150,
-            NewWaterIndex = 15
+            NewElectricIndex = 150
         });
 
         await utilityApp.CreateOrEditAsync(new CreateOrEditUtilityReadingDto
@@ -144,15 +158,12 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 120,
-            NewWaterIndex = 12
+            NewElectricIndex = 120
         });
 
         var febEntity = await db.UtilityReadings.AsNoTracking().FirstAsync(x => x.Id == feb.Id);
         Assert.Equal(120, febEntity.OldElectricIndex);
-        Assert.Equal(12, febEntity.OldWaterIndex);
         Assert.Equal(30, febEntity.ElectricUsage);
-        Assert.Equal(3, febEntity.WaterUsage);
     }
 
     [Fact]
@@ -165,8 +176,7 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 100,
-            NewWaterIndex = 10
+            NewElectricIndex = 100
         });
 
         var invoice = await db.Invoices.FirstAsync(x => x.UtilityReadingId == reading.Id);
@@ -179,8 +189,7 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 110,
-            NewWaterIndex = 11
+            NewElectricIndex = 110
         }));
     }
 
@@ -193,8 +202,7 @@ public class UtilityReadingFlowTests
             ContractId = contract.Id,
             Month = 1,
             Year = 2025,
-            NewElectricIndex = 50,
-            NewWaterIndex = 5
+            NewElectricIndex = 50
         });
 
         var bytes = await utilityApp.ExportExcelAsync(new UtilityReadingFilterDto { Year = 2025 });
@@ -202,7 +210,7 @@ public class UtilityReadingFlowTests
         Assert.Equal(0x50, bytes[0]); // PK zip header
     }
 
-    private static (IUtilityReadingAppService UtilityApp, Contract Contract, RoomRentalManagerServerDbContext Db) CreateServices()
+    private static (IUtilityReadingAppService UtilityApp, Contract Contract, RoomRentalManagerServerDbContext Db) CreateServices(Contract? seedContract = null)
     {
         var options = new DbContextOptionsBuilder<RoomRentalManagerServerDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -210,7 +218,7 @@ public class UtilityReadingFlowTests
             .Options;
         var db = new RoomRentalManagerServerDbContext(options);
 
-        var contract = new Contract
+        var contract = seedContract ?? new Contract
         {
             RoomRentalId = 1,
             TenantId = 10,

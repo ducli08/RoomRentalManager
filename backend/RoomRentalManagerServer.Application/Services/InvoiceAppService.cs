@@ -360,10 +360,19 @@ namespace RoomRentalManagerServer.Application.Services
         private static decimal CalculateTotalAmount(UtilityReading reading, Contract contract)
         {
             var garbage = reading.Month == 1 ? contract.GarbageFeePerYear : 0;
+            var waterFee = contract.WaterUnitPrice * GetTenantCount(contract);
             return contract.MonthlyRent
                    + reading.ElectricUsage * reading.ElectricUnitPrice
-                   + reading.WaterUsage * reading.WaterUnitPrice
+                   + waterFee
                    + garbage;
+        }
+
+        private static int GetTenantCount(Contract contract)
+        {
+            if (contract.TenantIds is { Length: > 0 })
+                return contract.TenantIds.Where(x => x > 0).Distinct().Count();
+
+            return contract.TenantId > 0 ? 1 : 0;
         }
 
         private static bool ContractContainsTenant(Contract contract, long tenantId)

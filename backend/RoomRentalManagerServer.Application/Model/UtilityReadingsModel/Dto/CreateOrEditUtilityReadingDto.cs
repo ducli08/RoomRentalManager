@@ -7,6 +7,5 @@ namespace RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto
         public int Month { get; set; }
         public int Year { get; set; }
         public decimal NewElectricIndex { get; set; }
-        public decimal NewWaterIndex { get; set; }
     }
 }

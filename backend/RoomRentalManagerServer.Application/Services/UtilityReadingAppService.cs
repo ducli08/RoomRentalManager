@@ -78,7 +78,6 @@ namespace RoomRentalManagerServer.Application.Services
             result.ContractStartDate = contract.StartDate;
             result.ContractEndDate = contract.EndDate;
             result.ElectricUnitPrice = contract.ElectricUnitPrice;
-            result.WaterUnitPrice = contract.WaterUnitPrice;
 
             if (!IsValidMonthYear(month, year, out var monthYearError))
             {
@@ -114,12 +113,10 @@ namespace RoomRentalManagerServer.Application.Services
                 }
 
                 result.OldElectricIndex = prevReading.NewElectricIndex;
-                result.OldWaterIndex = prevReading.NewWaterIndex;
             }
             else
             {
                 result.OldElectricIndex = 0;
-                result.OldWaterIndex = 0;
             }
 
             result.CanSave = true;
@@ -196,9 +193,6 @@ namespace RoomRentalManagerServer.Application.Services
             if (input.NewElectricIndex < prepare.OldElectricIndex)
                 throw new InvalidOperationException("Chỉ số điện mới phải lớn hơn hoặc bằng chỉ số cũ.");
 
-            if (input.NewWaterIndex < prepare.OldWaterIndex)
-                throw new InvalidOperationException("Chỉ số nước mới phải lớn hơn hoặc bằng chỉ số cũ.");
-
             UtilityReading? existingT = null;
             UtilityReading? nextReading = null;
 
@@ -229,9 +223,8 @@ namespace RoomRentalManagerServer.Application.Services
                 {
                     current = existingT!;
                     current.NewElectricIndex = input.NewElectricIndex;
-                    current.NewWaterIndex = input.NewWaterIndex;
                     current.ElectricUsage = input.NewElectricIndex - current.OldElectricIndex;
-                    current.WaterUsage = input.NewWaterIndex - current.OldWaterIndex;
+                    current.ElectricUnitPrice = contract.ElectricUnitPrice;
                     current.Status = UtilityReadingStatus.Confirmed;
                     current.UpdatedAt = now;
                     current.UpdaterUser = userName;
@@ -245,13 +238,9 @@ namespace RoomRentalManagerServer.Application.Services
                         Month = input.Month,
                         Year = input.Year,
                         OldElectricIndex = prepare.OldElectricIndex,
-                        OldWaterIndex = prepare.OldWaterIndex,
                         NewElectricIndex = input.NewElectricIndex,
-                        NewWaterIndex = input.NewWaterIndex,
                         ElectricUsage = input.NewElectricIndex - prepare.OldElectricIndex,
-                        WaterUsage = input.NewWaterIndex - prepare.OldWaterIndex,
                         ElectricUnitPrice = contract.ElectricUnitPrice,
-                        WaterUnitPrice = contract.WaterUnitPrice,
                         Status = UtilityReadingStatus.Confirmed,
                         CreatedAt = now,
                         UpdatedAt = now,
@@ -266,9 +255,7 @@ namespace RoomRentalManagerServer.Application.Services
                 if (nextReading != null)
                 {
                     nextReading.OldElectricIndex = current.NewElectricIndex;
-                    nextReading.OldWaterIndex = current.NewWaterIndex;
                     nextReading.ElectricUsage = nextReading.NewElectricIndex - nextReading.OldElectricIndex;
-                    nextReading.WaterUsage = nextReading.NewWaterIndex - nextReading.OldWaterIndex;
                     nextReading.UpdatedAt = now;
                     nextReading.UpdaterUser = userName;
                     await _utilityReadingRepository.UpdateAsync(nextReading);
@@ -308,8 +295,7 @@ namespace RoomRentalManagerServer.Application.Services
             var headers = new[]
             {
                 "Phòng", "Người thuê", "Hợp đồng", "Tháng", "Năm",
-                "Điện cũ", "Điện mới", "Tiêu thụ điện",
-                "Nước cũ", "Nước mới", "Tiêu thụ nước", "Trạng thái"
+                "Điện cũ", "Điện mới", "Tiêu thụ điện", "Trạng thái"
             };
 
             for (var i = 0; i < headers.Length; i++)
@@ -329,10 +315,7 @@ namespace RoomRentalManagerServer.Application.Services
                 ws.Cell(row, 6).Value = dto.OldElectricIndex;
                 ws.Cell(row, 7).Value = dto.NewElectricIndex;
                 ws.Cell(row, 8).Value = dto.ElectricUsage;
-                ws.Cell(row, 9).Value = dto.OldWaterIndex;
-                ws.Cell(row, 10).Value = dto.NewWaterIndex;
-                ws.Cell(row, 11).Value = dto.WaterUsage;
-                ws.Cell(row, 12).Value = dto.Status.ToString();
+                ws.Cell(row, 9).Value = dto.Status.ToString();
                 row++;
             }
 
@@ -361,6 +344,20 @@ namespace RoomRentalManagerServer.Application.Services
                 query = query.Where(x => x.Contract.RoomRentalId == filter.RoomRentalId);
             if (filter?.TenantId is > 0)
                 query = query.Where(x => x.Contract.TenantId == filter.TenantId || x.Contract.TenantIds.Contains(filter.TenantId.Value));
+            if (!string.IsNullOrWhiteSpace(filter?.CreatorUser))
+                query = query.Where(x => x.Reading.CreatorUser.Contains(filter.CreatorUser));
+            if (!string.IsNullOrWhiteSpace(filter?.UpdaterUser))
+                query = query.Where(x => x.Reading.UpdaterUser.Contains(filter.UpdaterUser));
+            if (filter?.CreatedAt is not null)
+            {
+                var createdDate = filter.CreatedAt.Value.Date;
+                query = query.Where(x => x.Reading.CreatedAt.Date == createdDate);
+            }
+            if (filter?.UpdatedAt is not null)
+            {
+                var updatedDate = filter.UpdatedAt.Value.Date;
+                query = query.Where(x => x.Reading.UpdatedAt.Date == updatedDate);
+            }
 
             return query.Select(x => x.Reading);
         }

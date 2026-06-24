@@ -8,6 +8,7 @@ import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { forkJoin, of, take } from 'rxjs';
@@ -26,12 +27,14 @@ import { CreateUtilityReadingComponent } from './create-utility-reading/create-u
 import { EditUtilityReadingComponent } from './edit-utility-reading/edit-utility-reading.component';
 import { ViewUtilityReadingComponent } from './view-utility-reading/view-utility-reading.component';
 
+type UtilityReadingFilterKey = keyof UtilityReadingFilterDto;
+
 @Component({
   selector: 'app-utility-readings',
   standalone: true,
   imports: [
     CommonModule, FormsModule, NzTableModule, NzButtonModule, NzIconModule,
-    NzFormModule, NzSelectModule, NzInputModule, NzModalModule, NzGridModule,
+    NzFormModule, NzSelectModule, NzInputModule, NzModalModule, NzGridModule, NzDatePickerModule,
   ],
   templateUrl: './utility-readings.component.html',
   styleUrls: ['./utility-readings.component.css'],
@@ -46,13 +49,27 @@ export class UtilityReadingsComponent implements OnInit {
   pageIndex = 1;
   pageSize = 10;
   lstRoomRentals: SelectListItem[] = [];
-  lstTenants: SelectListItem[] = [];
+  lstUsers: SelectListItem[] = [];
   lstMonths: SelectListItem[] = Array.from({ length: 12 }, (_, i) => new SelectListItem({ value: String(i + 1), text: `Tháng ${i + 1}` }));
   lstYears: SelectListItem[] = [];
   lstStatus: SelectListItem[] = [
     new SelectListItem({ value: String(UtilityReadingStatus.Confirmed), text: 'Đã xác nhận' }),
     new SelectListItem({ value: String(UtilityReadingStatus.InvoiceGenerated), text: 'Đã tạo hóa đơn' }),
   ];
+  filterPerRows: Array<Array<{
+    label: string;
+    key: UtilityReadingFilterKey;
+    type: string;
+    options?: () => SelectListItem[];
+    placeholder?: string;
+  }>> = [];
+  controlRequestArray: Array<{
+    label: string;
+    key: UtilityReadingFilterKey;
+    type: string;
+    options?: () => SelectListItem[];
+    placeholder?: string;
+  }> = [];
 
   constructor(
     private utilityApi: UtilityReadingApiService,
@@ -76,21 +93,52 @@ export class UtilityReadingsComponent implements OnInit {
       return new SelectListItem({ value: String(y), text: String(y) });
     });
 
+    this.controlRequestArray = [
+      { label: 'Phòng', key: 'roomRentalId', type: 'select', options: () => this.lstRoomRentals, placeholder: 'Chọn phòng' },
+      { label: 'Tháng', key: 'month', type: 'select', options: () => this.lstMonths, placeholder: 'Chọn tháng' },
+      { label: 'Năm', key: 'year', type: 'select', options: () => this.lstYears, placeholder: 'Chọn năm' },
+      { label: 'Trạng thái', key: 'status', type: 'select', options: () => this.lstStatus, placeholder: 'Chọn trạng thái' },
+      { label: 'Người tạo', key: 'creatorUser', type: 'select', options: () => this.lstUsers, placeholder: 'Người tạo' },
+      { label: 'Ngày tạo', key: 'createdAt', type: 'datetime' },
+      { label: 'Người cập nhật', key: 'updaterUser', type: 'select', options: () => this.lstUsers, placeholder: 'Người cập nhật' },
+      { label: 'Ngày cập nhật', key: 'updatedAt', type: 'datetime' },
+    ];
+    this.filterPerRows = this.chunkArray(this.controlRequestArray, 4);
+
+    this.resetFilters(false);
+
+    forkJoin([
+      this.memoryCache.get<SelectListItem[]>('roomRental') ? of(this.memoryCache.get<SelectListItem[]>('roomRental')!) : this.getSelectListItem.getSelectListItems('roomRental', ''),
+      this.memoryCache.get<SelectListItem[]>('user') ? of(this.memoryCache.get<SelectListItem[]>('user')!) : this.getSelectListItem.getSelectListItems('user', ''),
+    ]).subscribe(([rooms, users]) => {
+      this.lstRoomRentals = rooms ?? [];
+      this.lstUsers = users ?? [];
+      if (!this.memoryCache.get<SelectListItem[]>('roomRental')) this.memoryCache.set('roomRental', rooms);
+      if (!this.memoryCache.get<SelectListItem[]>('user')) this.memoryCache.set('user', users);
+    });
+
+    this.loadData();
+  }
+
+  chunkArray<T>(array: T[], chunkSize: number): T[][] {
+    const result: T[][] = [];
+    for (let i = 0; i < array.length; i += chunkSize) {
+      result.push(array.slice(i, i + chunkSize));
+    }
+    return result;
+  }
+
+  resetFilters(reload = true): void {
+    this.filterDto = new UtilityReadingFilterDto();
+    this.pageIndex = 1;
     this.requestDto.filter = this.filterDto;
     this.requestDto.page = this.pageIndex;
     this.requestDto.pageSize = this.pageSize;
     this.requestDto.sortBy = '';
     this.requestDto.sortOrder = '';
-
-    forkJoin([
-      this.memoryCache.get<SelectListItem[]>('roomRental') ? of(this.memoryCache.get<SelectListItem[]>('roomRental')!) : this.getSelectListItem.getSelectListItems('roomRental', ''),
-      this.memoryCache.get<SelectListItem[]>('tenant') ? of(this.memoryCache.get<SelectListItem[]>('tenant')!) : this.getSelectListItem.getSelectListItems('tenant', ''),
-    ]).subscribe(([rooms, tenants]) => {
-      this.lstRoomRentals = rooms ?? [];
-      this.lstTenants = tenants ?? [];
-    });
-
-    this.loadData();
+    if (reload) {
+      this.loadData();
+    }
   }
 
   loadData(): void {
@@ -100,7 +148,6 @@ export class UtilityReadingsComponent implements OnInit {
     if (filterToSend.year !== undefined) filterToSend.year = Number(filterToSend.year) as any;
     if (filterToSend.contractId !== undefined) filterToSend.contractId = Number(filterToSend.contractId) as any;
     if (filterToSend.roomRentalId !== undefined) filterToSend.roomRentalId = Number(filterToSend.roomRentalId) as any;
-    if (filterToSend.tenantId !== undefined) filterToSend.tenantId = Number(filterToSend.tenantId) as any;
     if (filterToSend.status !== undefined) filterToSend.status = Number(filterToSend.status) as any;
 
     this.requestDto.filter = filterToSend;

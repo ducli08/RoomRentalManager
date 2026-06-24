@@ -10,9 +10,7 @@ namespace RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto
         public DateTime? ContractStartDate { get; set; }
         public DateTime? ContractEndDate { get; set; }
         public decimal OldElectricIndex { get; set; }
-        public decimal OldWaterIndex { get; set; }
         public decimal ElectricUnitPrice { get; set; }
-        public decimal WaterUnitPrice { get; set; }
         public bool CanSave { get; set; }
         public string? Message { get; set; }
     }

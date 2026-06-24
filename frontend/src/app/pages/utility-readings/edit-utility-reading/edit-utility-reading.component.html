@@ -24,24 +24,5 @@
         <input nz-input [value]="electricUsage" readonly />
       </nz-form-control>
     </nz-form-item>
-
-    <nz-form-item>
-      <nz-form-label>Chỉ số nước cũ</nz-form-label>
-      <nz-form-control>
-        <input nz-input [value]="prepare?.oldWaterIndex ?? data.reading.oldWaterIndex" readonly />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label>Chỉ số nước mới</nz-form-label>
-      <nz-form-control>
-        <input nz-input type="number" formControlName="newWaterIndex" [readonly]="data.reading.isLockedByPayment" />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label>Tiêu thụ nước</nz-form-label>
-      <nz-form-control>
-        <input nz-input [value]="waterUsage" readonly />
-      </nz-form-control>
-    </nz-form-item>
   </form>
 </div>

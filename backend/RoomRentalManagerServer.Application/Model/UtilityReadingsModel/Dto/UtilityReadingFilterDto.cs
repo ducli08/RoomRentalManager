@@ -10,5 +10,9 @@ namespace RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto
         public UtilityReadingStatus? Status { get; set; }
         public long? RoomRentalId { get; set; }
         public long? TenantId { get; set; }
+        public string? CreatorUser { get; set; }
+        public string? UpdaterUser { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }

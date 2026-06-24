@@ -58,30 +58,5 @@
         <input nz-input [value]="prepare?.electricUnitPrice ?? ''" readonly />
       </nz-form-control>
     </nz-form-item>
-
-    <nz-form-item>
-      <nz-form-label>Chỉ số nước cũ (readonly)</nz-form-label>
-      <nz-form-control>
-        <input nz-input [value]="prepare?.oldWaterIndex ?? 0" readonly />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label>Chỉ số nước mới</nz-form-label>
-      <nz-form-control>
-        <input nz-input type="number" formControlName="newWaterIndex" />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label>Tiêu thụ nước</nz-form-label>
-      <nz-form-control>
-        <input nz-input [value]="waterUsage" readonly />
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label>Đơn giá nước (VND/người, snapshot)</nz-form-label>
-      <nz-form-control>
-        <input nz-input [value]="prepare?.waterUnitPrice ?? ''" readonly />
-      </nz-form-control>
-    </nz-form-item>
   </form>
 </div>

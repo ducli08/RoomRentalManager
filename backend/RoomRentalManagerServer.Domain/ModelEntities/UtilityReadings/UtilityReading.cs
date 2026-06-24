@@ -28,20 +28,8 @@ namespace RoomRentalManagerServer.Domain.ModelEntities.UtilityReadings
         [Column("electricUsage")]
         public decimal ElectricUsage { get; set; }
 
-        [Column("oldWaterIndex")]
-        public decimal OldWaterIndex { get; set; }
-
-        [Column("newWaterIndex")]
-        public decimal NewWaterIndex { get; set; }
-
-        [Column("waterUsage")]
-        public decimal WaterUsage { get; set; }
-
         [Column("electricUnitPrice")]
         public decimal ElectricUnitPrice { get; set; }
-
-        [Column("waterUnitPrice")]
-        public decimal WaterUnitPrice { get; set; }
 
         [Column("status")]
         public UtilityReadingStatus Status { get; set; }

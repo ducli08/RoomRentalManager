@@ -28,7 +28,6 @@ export class CreateUtilityReadingComponent implements OnInit {
   lstYears: SelectListItem[] = [];
   prepare: UtilityReadingPrepareDto | null = null;
   electricUsage = 0;
-  waterUsage = 0;
   @Output() saved = new EventEmitter<void>();
 
   constructor(
@@ -49,7 +48,6 @@ export class CreateUtilityReadingComponent implements OnInit {
       month: [new Date().getMonth() + 1, Validators.required],
       year: [currentYear, Validators.required],
       newElectricIndex: [null, Validators.required],
-      newWaterIndex: [null, Validators.required],
     });
 
     this.loadActiveContracts();
@@ -85,11 +83,8 @@ export class CreateUtilityReadingComponent implements OnInit {
 
   recalcUsage(): void {
     const newE = Number(this.form.value.newElectricIndex) || 0;
-    const newW = Number(this.form.value.newWaterIndex) || 0;
     const oldE = this.prepare?.oldElectricIndex ?? 0;
-    const oldW = this.prepare?.oldWaterIndex ?? 0;
     this.electricUsage = Math.max(0, newE - oldE);
-    this.waterUsage = Math.max(0, newW - oldW);
   }
 
   get canSubmit(): boolean {
@@ -104,7 +99,6 @@ export class CreateUtilityReadingComponent implements OnInit {
     dto.month = Number(raw.month);
     dto.year = Number(raw.year);
     dto.newElectricIndex = Number(raw.newElectricIndex);
-    dto.newWaterIndex = Number(raw.newWaterIndex);
 
     this.utilityApi.create(dto).subscribe({
       next: () => this.saved.emit(),

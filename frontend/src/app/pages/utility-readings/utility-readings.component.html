@@ -1,50 +1,28 @@
 <form nz-form>
-  <div nz-row [nzGutter]="16">
-    <nz-form-item nz-col nzSpan="6">
-      <nz-form-label>Tháng</nz-form-label>
-      <nz-form-control>
-        <nz-select [(ngModel)]="filterDto.month" name="month" nzAllowClear nzPlaceHolder="Tất cả">
-          <nz-option *ngFor="let m of lstMonths" [nzValue]="+m.value!" [nzLabel]="m.text!"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item nz-col nzSpan="6">
-      <nz-form-label>Năm</nz-form-label>
-      <nz-form-control>
-        <nz-select [(ngModel)]="filterDto.year" name="year" nzAllowClear nzPlaceHolder="Tất cả">
-          <nz-option *ngFor="let y of lstYears" [nzValue]="+y.value!" [nzLabel]="y.text!"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item nz-col nzSpan="6">
-      <nz-form-label>Phòng</nz-form-label>
-      <nz-form-control>
-        <nz-select [(ngModel)]="filterDto.roomRentalId" name="roomRentalId" nzAllowClear nzShowSearch>
-          <nz-option *ngFor="let r of lstRoomRentals" [nzValue]="r.value" [nzLabel]="r.text ?? ''"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item nz-col nzSpan="6">
-      <nz-form-label>Người thuê</nz-form-label>
-      <nz-form-control>
-        <nz-select [(ngModel)]="filterDto.tenantId" name="tenantId" nzAllowClear nzShowSearch>
-          <nz-option *ngFor="let t of lstTenants" [nzValue]="t.value" [nzLabel]="t.text ?? ''"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item nz-col nzSpan="6">
-      <nz-form-label>Trạng thái</nz-form-label>
-      <nz-form-control>
-        <nz-select [(ngModel)]="filterDto.status" name="status" nzAllowClear>
-          <nz-option *ngFor="let s of lstStatus" [nzValue]="+s.value!" [nzLabel]="s.text!"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-  </div>
+  <ng-container *ngFor="let row of filterPerRows">
+    <div nz-row>
+      <nz-form-item *ngFor="let field of row" nz-col nzSpan="6">
+        <nz-form-label nz-col nzSpan="10">{{ field.label }}</nz-form-label>
+        <nz-form-control nz-col nzSpan="20">
+          <ng-container [ngSwitch]="field.type">
+            <input *ngSwitchCase="'text'" nz-input [(ngModel)]="filterDto[field.key]" [name]="field.key"
+              [placeholder]="field.placeholder ?? null" />
+            <nz-select *ngSwitchCase="'select'" [(ngModel)]="filterDto[field.key]" [name]="field.key"
+              [nzPlaceHolder]="field.placeholder ?? null" nzShowSearch nzAllowClear>
+              <nz-option *ngFor="let opt of field.options ? field.options() : []" [nzValue]="opt.value ?? null"
+                [nzLabel]="opt.text ?? null"></nz-option>
+            </nz-select>
+            <nz-date-picker style="width: 100%;" *ngSwitchCase="'datetime'" [(ngModel)]="filterDto[field.key]"
+              [name]="field.key"></nz-date-picker>
+          </ng-container>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </ng-container>
   <button nz-button nzType="primary" (click)="loadData()">
     <nz-icon nzType="search" nzTheme="outline" />Tìm kiếm
   </button>
-  <button nz-button class="btn-gap" (click)="loadData()">
+  <button nz-button class="btn-gap" (click)="resetFilters()">
     <nz-icon nzType="reload" nzTheme="outline" />Làm mới
   </button>
   <button nz-button nzType="primary" class="btn-gap" *ngIf="hasPermission('UtilityReading.Thêm')" (click)="openCreateModal()">
@@ -62,34 +40,34 @@
   <thead>
     <tr>
       <th>Phòng</th>
-      <th>Người thuê</th>
       <th>Hợp đồng</th>
       <th>Tháng</th>
       <th>Năm</th>
       <th>Điện cũ</th>
       <th>Điện mới</th>
       <th>Tiêu thụ điện</th>
-      <th>Nước cũ</th>
-      <th>Nước mới</th>
-      <th>Tiêu thụ nước</th>
       <th>Trạng thái</th>
+      <th>Người tạo</th>
+      <th>Ngày tạo</th>
+      <th>Người cập nhật</th>
+      <th>Ngày cập nhật</th>
       <th>Thao tác</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let row of readings">
       <td>{{ row.roomName }}</td>
-      <td>{{ row.tenantName }}</td>
       <td>#{{ row.contractId }}</td>
       <td>{{ row.month }}</td>
       <td>{{ row.year }}</td>
       <td>{{ row.oldElectricIndex | number }}</td>
       <td>{{ row.newElectricIndex | number }}</td>
       <td>{{ row.electricUsage | number }}</td>
-      <td>{{ row.oldWaterIndex | number }}</td>
-      <td>{{ row.newWaterIndex | number }}</td>
-      <td>{{ row.waterUsage | number }}</td>
       <td>{{ getStatusText(row.status) }}</td>
+      <td>{{ row.creatorUser }}</td>
+      <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+      <td>{{ row.updaterUser }}</td>
+      <td>{{ row.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
       <td>
         <nz-icon nzType="eye" nzTheme="outline" (click)="openViewModal(row)" style="cursor:pointer;margin-right:8px" />
         <nz-icon nzType="edit" nzTheme="outline" *ngIf="hasPermission('UtilityReading.Sửa') && !row.isLockedByPayment"

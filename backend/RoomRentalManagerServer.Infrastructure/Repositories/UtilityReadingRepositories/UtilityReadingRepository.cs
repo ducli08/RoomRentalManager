@@ -79,11 +79,7 @@ namespace RoomRentalManagerServer.Infrastructure.Repositories.UtilityReadingRepo
                 existing.OldElectricIndex = utilityReading.OldElectricIndex;
                 existing.NewElectricIndex = utilityReading.NewElectricIndex;
                 existing.ElectricUsage = utilityReading.ElectricUsage;
-                existing.OldWaterIndex = utilityReading.OldWaterIndex;
-                existing.NewWaterIndex = utilityReading.NewWaterIndex;
-                existing.WaterUsage = utilityReading.WaterUsage;
                 existing.ElectricUnitPrice = utilityReading.ElectricUnitPrice;
-                existing.WaterUnitPrice = utilityReading.WaterUnitPrice;
                 existing.Status = utilityReading.Status;
                 existing.UpdatedAt = utilityReading.UpdatedAt;
                 existing.UpdaterUser = utilityReading.UpdaterUser;

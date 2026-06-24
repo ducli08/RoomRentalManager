@@ -13,11 +13,7 @@ export class UtilityReadingDto {
   oldElectricIndex?: number;
   newElectricIndex?: number;
   electricUsage?: number;
-  oldWaterIndex?: number;
-  newWaterIndex?: number;
-  waterUsage?: number;
   electricUnitPrice?: number;
-  waterUnitPrice?: number;
   status?: UtilityReadingStatus;
   isLockedByPayment?: boolean;
   createdAt?: Date;
@@ -33,6 +29,10 @@ export class UtilityReadingFilterDto {
   status?: UtilityReadingStatus;
   roomRentalId?: number;
   tenantId?: number;
+  creatorUser?: string;
+  updaterUser?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export class UtilityReadingFilterDtoPagedRequestDto {
@@ -54,7 +54,6 @@ export class CreateOrEditUtilityReadingDto {
   month?: number;
   year?: number;
   newElectricIndex?: number;
-  newWaterIndex?: number;
 }
 
 export class UtilityReadingPrepareDto {
@@ -66,9 +65,7 @@ export class UtilityReadingPrepareDto {
   contractStartDate?: Date;
   contractEndDate?: Date;
   oldElectricIndex?: number;
-  oldWaterIndex?: number;
   electricUnitPrice?: number;
-  waterUnitPrice?: number;
   canSave?: boolean;
   message?: string;
 }
