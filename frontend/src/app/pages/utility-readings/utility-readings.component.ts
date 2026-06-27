@@ -23,6 +23,7 @@ import {
 import { SelectListItemService } from '../../shared/get-select-list-item.service';
 import { CategoryCacheService } from '../../shared/category-cache.service';
 import { utilityReadingStatusLabel } from '../../shared/utility-reading-status-label';
+import { formatBillingPeriod } from '../../shared/billing-period-format';
 import { CreateUtilityReadingComponent } from './create-utility-reading/create-utility-reading.component';
 import { EditUtilityReadingComponent } from './edit-utility-reading/edit-utility-reading.component';
 import { ViewUtilityReadingComponent } from './view-utility-reading/view-utility-reading.component';
@@ -184,6 +185,8 @@ export class UtilityReadingsComponent implements OnInit {
   getStatusText(status?: UtilityReadingStatus): string {
     return utilityReadingStatusLabel(status);
   }
+
+  formatBillingPeriod = formatBillingPeriod;
 
   exportExcel(): void {
     const filterToSend = new UtilityReadingFilterDto();

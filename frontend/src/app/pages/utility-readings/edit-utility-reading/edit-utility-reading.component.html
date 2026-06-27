@@ -4,6 +4,9 @@
 
   <p><strong>Phòng:</strong> {{ data.reading.roomName }} | <strong>Người thuê:</strong> {{ data.reading.tenantName }}</p>
   <p><strong>Tháng/Năm:</strong> {{ data.reading.month }}/{{ data.reading.year }}</p>
+  <p><strong>Kỳ thu:</strong> {{ billingPeriodLabel(data.reading, prepare) }}
+    <span *ngIf="occupancyDays(data.reading, prepare) as days"> ({{ days }} ngày)</span>
+  </p>
 
   <form nz-form nzLayout="vertical" [formGroup]="form">
     <nz-form-item>

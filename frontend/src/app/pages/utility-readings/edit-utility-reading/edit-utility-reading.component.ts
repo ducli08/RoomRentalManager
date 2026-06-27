@@ -12,6 +12,7 @@ import {
   UtilityReadingDto,
   UtilityReadingPrepareDto,
 } from '../../../shared/services';
+import { formatBillingPeriod } from '../../../shared/billing-period-format';
 
 @Component({
   selector: 'app-edit-utility-reading',
@@ -63,6 +64,18 @@ export class EditUtilityReadingComponent implements OnInit {
 
   get canSubmit(): boolean {
     return this.form.valid && !this.data.reading.isLockedByPayment && (this.prepare?.canSave ?? true);
+  }
+
+  formatBillingPeriod = formatBillingPeriod;
+
+  billingPeriodLabel(reading: UtilityReadingDto, prepare: UtilityReadingPrepareDto | null): string {
+    const start = prepare?.periodStart ?? reading.periodStart;
+    const end = prepare?.periodEnd ?? reading.periodEnd;
+    return formatBillingPeriod(start, end);
+  }
+
+  occupancyDays(reading: UtilityReadingDto, prepare: UtilityReadingPrepareDto | null): number | undefined {
+    return prepare?.occupancyDays ?? reading.occupancyDays;
   }
 
   onSubmit(): void {

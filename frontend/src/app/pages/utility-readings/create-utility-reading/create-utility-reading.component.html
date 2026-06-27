@@ -34,6 +34,11 @@
 
     <nz-alert *ngIf="prepare && !prepare.canSave" nzType="warning" [nzMessage]="prepare.message || ''" nzShowIcon class="mb-16"></nz-alert>
 
+    <p *ngIf="prepare?.periodStart && prepare?.periodEnd">
+      <strong>Kỳ thu:</strong> {{ formatBillingPeriod(prepare!.periodStart, prepare!.periodEnd) }}
+      <span *ngIf="prepare!.occupancyDays"> ({{ prepare!.occupancyDays }} ngày)</span>
+    </p>
+
     <nz-form-item>
       <nz-form-label>Chỉ số điện cũ (readonly)</nz-form-label>
       <nz-form-control>

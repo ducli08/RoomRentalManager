@@ -27,7 +27,7 @@ public class ContractRepositoryTests
             MonthlyRent = 2_000_000m,
             ElectricUnitPrice = 4_000m,
             WaterUnitPrice = 30_000m,
-            GarbageFeePerYear = 150_000m,
+            GarbageFeePerMonthPerPerson = 12_500m,
             StatusContract = StatusContract.Active,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
@@ -51,7 +51,7 @@ public class ContractRepositoryTests
             MonthlyRent = existing.MonthlyRent,
             ElectricUnitPrice = 4_500m,
             WaterUnitPrice = 35_000m,
-            GarbageFeePerYear = 180_000m,
+            GarbageFeePerMonthPerPerson = 15_000m,
             StatusContract = StatusContract.Active,
             UpdatedAt = DateTime.UtcNow,
             UpdaterUser = "admin"
@@ -60,7 +60,7 @@ public class ContractRepositoryTests
         var updated = await db.Contracts.AsNoTracking().FirstAsync(x => x.Id == existing.Id);
         Assert.Equal(4_500m, updated.ElectricUnitPrice);
         Assert.Equal(35_000m, updated.WaterUnitPrice);
-        Assert.Equal(180_000m, updated.GarbageFeePerYear);
+        Assert.Equal(15_000m, updated.GarbageFeePerMonthPerPerson);
         Assert.Equal(11, updated.TenantId);
         Assert.Equal(new long[] { 11, 12, 13 }, updated.TenantIds);
     }

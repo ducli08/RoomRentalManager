@@ -14,6 +14,7 @@ import {
   UtilityReadingPrepareDto,
 } from '../../../shared/services';
 import { SelectListItemService } from '../../../shared/get-select-list-item.service';
+import { formatBillingPeriod } from '../../../shared/billing-period-format';
 
 @Component({
   selector: 'app-create-utility-reading',
@@ -90,6 +91,8 @@ export class CreateUtilityReadingComponent implements OnInit {
   get canSubmit(): boolean {
     return this.form.valid && (this.prepare?.canSave ?? false);
   }
+
+  formatBillingPeriod = formatBillingPeriod;
 
   onSubmit(): void {
     if (!this.canSubmit) return;

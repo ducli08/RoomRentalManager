@@ -41,8 +41,8 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.Dto
         [Display(Name = "Đơn giá nước (VND/người)", Order = 10)]
         public decimal WaterUnitPrice { get; set; }
 
-        [Display(Name = "Tiền rác/năm", Order = 11)]
-        public decimal GarbageFeePerYear { get; set; }
+        [Display(Name = "Tiền rác/tháng/người", Order = 11)]
+        public decimal GarbageFeePerMonthPerPerson { get; set; }
 
         [Display(Name = "Trạng thái", Order = 12)]
         public StatusContract StatusContract { get; set; }

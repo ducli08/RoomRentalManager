@@ -171,7 +171,7 @@ namespace RoomRentalManagerServer.Application.Services
                 contract.MonthlyRent = monthlyRent;
                 contract.ElectricUnitPrice = ParseDecimalOrDefault(input.ElectricUnitPrice, 4000);
                 contract.WaterUnitPrice = ParseDecimalOrDefault(input.WaterUnitPrice, 30000);
-                contract.GarbageFeePerYear = ParseDecimalOrDefault(input.GarbageFeePerYear, 150000);
+                contract.GarbageFeePerMonthPerPerson = ParseDecimalOrDefault(input.GarbageFeePerMonthPerPerson, 12500);
 
                 if (isUpdate)
                 {

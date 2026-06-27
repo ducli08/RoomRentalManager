@@ -74,7 +74,7 @@ export class CreateContractsComponent implements OnInit {
       { label: 'Tiền thuê hàng tháng', key: 'monthlyRent', type: 'number', placeholder: 'Nhập tiền thuê', validators: [Validators.required] },
       { label: 'Đơn giá điện (VND/kWh)', key: 'electricUnitPrice', type: 'number', placeholder: '4000', validators: [Validators.required] },
       { label: 'Đơn giá nước (VND/người)', key: 'waterUnitPrice', type: 'number', placeholder: '30000', validators: [Validators.required] },
-      { label: 'Tiền rác/năm', key: 'garbageFeePerYear', type: 'number', placeholder: '150000', validators: [Validators.required] },
+      { label: 'Tiền rác/tháng/người (VND)', key: 'garbageFeePerMonthPerPerson', type: 'number', placeholder: '12500', validators: [Validators.required] },
       { label: 'Trạng thái', key: 'statusContract', type: 'select', options: () => this.lstStatusContracts, placeholder: 'Chọn trạng thái', validators: [Validators.required] },
     ];
 
@@ -82,7 +82,7 @@ export class CreateContractsComponent implements OnInit {
     this.controlRequestArray.forEach(control => {
       const defaultValue = control.key === 'electricUnitPrice' ? 4000
         : control.key === 'waterUnitPrice' ? 30000
-        : control.key === 'garbageFeePerYear' ? 150000
+        : control.key === 'garbageFeePerMonthPerPerson' ? 12500
         : control.key === 'tenantIds' ? []
         : null;
       formControls[control.key] = [defaultValue, control.validators || []];
@@ -106,7 +106,7 @@ export class CreateContractsComponent implements OnInit {
     dto.monthlyRent = String(raw.monthlyRent);
     dto.electricUnitPrice = String(raw.electricUnitPrice);
     dto.waterUnitPrice = String(raw.waterUnitPrice);
-    dto.garbageFeePerYear = String(raw.garbageFeePerYear);
+    dto.garbageFeePerMonthPerPerson = String(raw.garbageFeePerMonthPerPerson);
     dto.statusContract = Number(raw.statusContract) as StatusContract;
 
     this.contractApi.createOrEditContract(dto).subscribe({

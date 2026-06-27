@@ -10,6 +10,10 @@ namespace RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto
         public string? TenantName { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
+        public DateTime? PeriodStart { get; set; }
+        public DateTime? PeriodEnd { get; set; }
+        public int OccupancyDays { get; set; }
+        public bool IsFullPeriod { get; set; }
         public decimal OldElectricIndex { get; set; }
         public decimal NewElectricIndex { get; set; }
         public decimal ElectricUsage { get; set; }

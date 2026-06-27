@@ -4,6 +4,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { UtilityReadingDto } from '../../../shared/services';
 import { utilityReadingStatusLabel } from '../../../shared/utility-reading-status-label';
+import { formatBillingPeriod } from '../../../shared/billing-period-format';
 
 @Component({
   selector: 'app-view-utility-reading',
@@ -23,4 +24,6 @@ export class ViewUtilityReadingComponent implements OnInit {
   getStatusText(): string {
     return utilityReadingStatusLabel(this.reading.status);
   }
+
+  formatBillingPeriod = formatBillingPeriod;
 }

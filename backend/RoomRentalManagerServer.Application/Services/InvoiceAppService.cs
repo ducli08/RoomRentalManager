@@ -1,3 +1,4 @@
+using RoomRentalManagerServer.Application.Common;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -331,8 +332,8 @@ namespace RoomRentalManagerServer.Application.Services
                 }
             }
 
-            var totalAmount = CalculateTotalAmount(reading, contract);
-            var invoiceDate = new DateTime(reading.Year, reading.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var period = BillingPeriodHelper.GetBillingPeriod(contract, reading.Month, reading.Year);
+            var totalAmount = InvoiceAmountCalculator.CalculateTotalAmount(contract, reading, period);
             var now = DateTime.UtcNow;
 
             var invoice = new Invoice
@@ -341,8 +342,8 @@ namespace RoomRentalManagerServer.Application.Services
                 UtilityReadingId = reading.Id,
                 Month = reading.Month,
                 Year = reading.Year,
-                InvoiceDate = invoiceDate,
-                DueDate = invoiceDate.AddDays(7),
+                InvoiceDate = now,
+                DueDate = period.PeriodEnd.Date.AddDays(5),
                 TotalAmount = totalAmount,
                 AmountPaid = 0,
                 Status = InvoiceStatus.Issued,
@@ -355,24 +356,6 @@ namespace RoomRentalManagerServer.Application.Services
 
             await _invoiceRepository.AddAsync(invoice);
             return invoice.Id;
-        }
-
-        private static decimal CalculateTotalAmount(UtilityReading reading, Contract contract)
-        {
-            var garbage = reading.Month == 1 ? contract.GarbageFeePerYear : 0;
-            var waterFee = contract.WaterUnitPrice * GetTenantCount(contract);
-            return contract.MonthlyRent
-                   + reading.ElectricUsage * reading.ElectricUnitPrice
-                   + waterFee
-                   + garbage;
-        }
-
-        private static int GetTenantCount(Contract contract)
-        {
-            if (contract.TenantIds is { Length: > 0 })
-                return contract.TenantIds.Where(x => x > 0).Distinct().Count();
-
-            return contract.TenantId > 0 ? 1 : 0;
         }
 
         private static bool ContractContainsTenant(Contract contract, long tenantId)

@@ -5,6 +5,10 @@ namespace RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto
         public long ContractId { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
+        public DateTime? PeriodStart { get; set; }
+        public DateTime? PeriodEnd { get; set; }
+        public int OccupancyDays { get; set; }
+        public bool IsFullPeriod { get; set; }
         public string? RoomName { get; set; }
         public string? TenantName { get; set; }
         public DateTime? ContractStartDate { get; set; }

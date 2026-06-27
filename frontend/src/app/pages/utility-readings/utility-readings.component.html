@@ -36,13 +36,15 @@
 <nz-table nzShowPagination nzShowSizeChanger [nzData]="readings" [nzTotal]="total"
   [nzPageSize]="pageSize" [nzPageIndex]="pageIndex" [nzLoading]="loading"
   (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"
-  [nzScroll]="{ x: '1600px', y: '320px' }">
+  [nzScroll]="{ x: '1900px', y: '320px' }">
   <thead>
     <tr>
       <th>Phòng</th>
       <th>Hợp đồng</th>
       <th>Tháng</th>
       <th>Năm</th>
+      <th>Kỳ thu</th>
+      <th>Số ngày</th>
       <th>Điện cũ</th>
       <th>Điện mới</th>
       <th>Tiêu thụ điện</th>
@@ -60,6 +62,8 @@
       <td>#{{ row.contractId }}</td>
       <td>{{ row.month }}</td>
       <td>{{ row.year }}</td>
+      <td>{{ formatBillingPeriod(row.periodStart, row.periodEnd) }}</td>
+      <td>{{ row.occupancyDays ?? '-' }}</td>
       <td>{{ row.oldElectricIndex | number }}</td>
       <td>{{ row.newElectricIndex | number }}</td>
       <td>{{ row.electricUsage | number }}</td>

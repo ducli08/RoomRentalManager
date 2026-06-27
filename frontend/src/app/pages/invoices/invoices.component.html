@@ -3,46 +3,40 @@
   <button nz-button nzType="primary" (click)="openCreate()">Tạo hóa đơn</button>
 </div>
 
-<form nz-form class="filters" (ngSubmit)="search()">
-  <div nz-row [nzGutter]="16">
-    <div nz-col [nzSpan]="6">
-      <nz-form-item>
-        <nz-form-label>Contract ID</nz-form-label>
-        <nz-form-control>
-          <input nz-input type="number" [(ngModel)]="filter.contractId" name="contractId" placeholder="Ví dụ: 123" />
-        </nz-form-control>
-      </nz-form-item>
-    </div>
-
-    <div nz-col [nzSpan]="6">
-      <nz-form-item>
-        <nz-form-label>Trạng thái</nz-form-label>
-        <nz-form-control>
-          <nz-select [(ngModel)]="filter.status" name="status" nzAllowClear nzPlaceHolder="Tất cả">
-            <nz-option *ngFor="let opt of statusOptions" [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </div>
-
-    <div nz-col [nzSpan]="6">
-      <nz-form-item>
-        <nz-form-label>Quá hạn</nz-form-label>
-        <nz-form-control>
-          <nz-select [(ngModel)]="filter.isOverdue" name="isOverdue" nzAllowClear nzPlaceHolder="Tất cả">
-            <nz-option [nzValue]="true" nzLabel="Quá hạn"></nz-option>
-            <nz-option [nzValue]="false" nzLabel="Không quá hạn"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </div>
-
-    <div nz-col [nzSpan]="6" class="actions">
-      <button nz-button nzType="primary" [disabled]="loading">Tìm kiếm</button>
-      <button nz-button nzType="default" (click)="resetFilters()" [disabled]="loading">Reset</button>
-    </div>
+<form nz-form (ngSubmit)="search()">
+  <div nz-row>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label nz-col nzSpan="10">Contract ID</nz-form-label>
+      <nz-form-control nz-col nzSpan="20">
+        <input nz-input type="number" [(ngModel)]="filter.contractId" name="contractId" placeholder="Ví dụ: 123" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label nz-col nzSpan="10">Trạng thái</nz-form-label>
+      <nz-form-control nz-col nzSpan="20">
+        <nz-select [(ngModel)]="filter.status" name="status" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option *ngFor="let opt of statusOptions" [nzValue]="opt.value" [nzLabel]="opt.label"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item nz-col nzSpan="6">
+      <nz-form-label nz-col nzSpan="10">Quá hạn</nz-form-label>
+      <nz-form-control nz-col nzSpan="20">
+        <nz-select [(ngModel)]="filter.isOverdue" name="isOverdue" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option [nzValue]="true" nzLabel="Quá hạn"></nz-option>
+          <nz-option [nzValue]="false" nzLabel="Không quá hạn"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
   </div>
+  <button nz-button nzType="primary" type="submit" [disabled]="loading">
+    <nz-icon nzType="search" nzTheme="outline" />Tìm kiếm
+  </button>
+  <button nz-button class="btn-gap" type="button" (click)="resetFilters()" [disabled]="loading">
+    <nz-icon nzType="reload" nzTheme="outline" />Reset
+  </button>
 </form>
+<br><br>
 
 <nz-table
   #tbl
@@ -91,4 +85,3 @@
     </tr>
   </tbody>
 </nz-table>
-

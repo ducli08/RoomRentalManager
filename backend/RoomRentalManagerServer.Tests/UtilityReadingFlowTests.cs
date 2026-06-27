@@ -58,7 +58,7 @@ public class UtilityReadingFlowTests
     }
 
     [Fact]
-    public async Task Create_January_IncludesGarbageFeeInInvoice()
+    public async Task Create_January_IncludesGarbageFeeProRataInInvoice()
     {
         var (utilityApp, contract, db) = CreateServices();
 
@@ -73,14 +73,15 @@ public class UtilityReadingFlowTests
         var invoice = await db.Invoices.AsNoTracking()
             .FirstAsync(x => x.UtilityReadingId == result.Id);
 
-        const decimal expected = 2_000_000m + (100 * 4000m) + (1 * 30_000m) + 150_000m;
+        const decimal expected = 2_000_000m + (100 * 4000m) + (30_000m / 30 * 31) + (12_500m / 30 * 31);
         Assert.Equal(expected, invoice.TotalAmount);
         Assert.Equal(InvoiceStatus.Issued, invoice.Status);
         Assert.Equal(UtilityReadingStatus.InvoiceGenerated, result.Status);
+        Assert.Equal(new DateTime(2025, 1, 31).AddDays(5), invoice.DueDate.Date);
     }
 
     [Fact]
-    public async Task Create_February_DoesNotIncludeGarbageFee()
+    public async Task Create_February_IncludesGarbageFeeProRata()
     {
         var (utilityApp, contract, db) = CreateServices();
 
@@ -103,7 +104,7 @@ public class UtilityReadingFlowTests
         var invoice = await db.Invoices.AsNoTracking()
             .FirstAsync(x => x.UtilityReadingId == feb.Id);
 
-        const decimal expected = 2_000_000m + (50 * 4000m) + (1 * 30_000m);
+        const decimal expected = 2_000_000m + (50 * 4000m) + (30_000m / 30 * 28) + (12_500m / 30 * 28);
         Assert.Equal(expected, invoice.TotalAmount);
     }
 
@@ -127,7 +128,7 @@ public class UtilityReadingFlowTests
         var invoice = await db.Invoices.AsNoTracking()
             .FirstAsync(x => x.UtilityReadingId == result.Id);
 
-        const decimal expected = 2_000_000m + (2 * 30_000m) + 150_000m;
+        const decimal expected = 2_000_000m + (60_000m / 30 * 31) + (25_000m / 30 * 31);
         Assert.Equal(expected, invoice.TotalAmount);
     }
 
@@ -229,7 +230,7 @@ public class UtilityReadingFlowTests
             MonthlyRent = 2_000_000m,
             ElectricUnitPrice = 4000m,
             WaterUnitPrice = 30_000m,
-            GarbageFeePerYear = 150_000m,
+            GarbageFeePerMonthPerPerson = 12_500m,
             StatusContract = StatusContract.Active,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,

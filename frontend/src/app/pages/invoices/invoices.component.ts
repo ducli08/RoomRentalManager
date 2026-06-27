@@ -9,6 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import {
   InvoiceDto,
@@ -35,6 +36,7 @@ type InvoiceStatusOption = { value: InvoiceStatus; label: string };
     NzGridModule,
     NzInputModule,
     NzTagModule,
+    NzIconModule,
   ],
   templateUrl: './invoices.component.html',
   styleUrls: ['./invoices.component.css'],

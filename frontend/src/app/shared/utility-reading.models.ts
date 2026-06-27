@@ -10,6 +10,10 @@ export class UtilityReadingDto {
   tenantName?: string;
   month?: number;
   year?: number;
+  periodStart?: Date;
+  periodEnd?: Date;
+  occupancyDays?: number;
+  isFullPeriod?: boolean;
   oldElectricIndex?: number;
   newElectricIndex?: number;
   electricUsage?: number;
@@ -64,6 +68,10 @@ export class UtilityReadingPrepareDto {
   tenantName?: string;
   contractStartDate?: Date;
   contractEndDate?: Date;
+  periodStart?: Date;
+  periodEnd?: Date;
+  occupancyDays?: number;
+  isFullPeriod?: boolean;
   oldElectricIndex?: number;
   electricUnitPrice?: number;
   canSave?: boolean;

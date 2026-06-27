@@ -2,6 +2,7 @@ using AutoMapper;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoomRentalManagerServer.Application.Common;
 using RoomRentalManagerServer.Application.Common.CommonDto;
 using RoomRentalManagerServer.Application.Interfaces;
 using RoomRentalManagerServer.Application.Model.UtilityReadingsModel.Dto;
@@ -86,12 +87,14 @@ namespace RoomRentalManagerServer.Application.Services
                 return result;
             }
 
-            if (!IsMonthWithinContract(contract, month, year))
+            if (!BillingPeriodHelper.IsPeriodWithinContract(contract, month, year))
             {
                 result.CanSave = false;
                 result.Message = "Tháng/năm không nằm trong thời gian hợp đồng.";
                 return result;
             }
+
+            ApplyPeriodFields(result, contract, month, year);
 
             var duplicate = await _utilityReadingRepository.GetByContractMonthYearAsync(contractId, month, year);
             if (duplicate != null && duplicate.Id != utilityReadingId)
@@ -101,8 +104,8 @@ namespace RoomRentalManagerServer.Application.Services
                 return result;
             }
 
-            var (prevMonth, prevYear) = GetPreviousMonthYear(month, year);
-            if (IsMonthWithinContract(contract, prevMonth, prevYear))
+            var (prevMonth, prevYear) = BillingPeriodHelper.GetPreviousPeriodMonthYear(month, year);
+            if (BillingPeriodHelper.IsPeriodWithinContract(contract, prevMonth, prevYear))
             {
                 var prevReading = await _utilityReadingRepository.GetByContractMonthYearAsync(contractId, prevMonth, prevYear);
                 if (prevReading == null)
@@ -183,7 +186,7 @@ namespace RoomRentalManagerServer.Application.Services
             if (!IsValidMonthYear(input.Month, input.Year, out var monthYearError))
                 throw new InvalidOperationException(monthYearError);
 
-            if (!IsMonthWithinContract(contract, input.Month, input.Year))
+            if (!BillingPeriodHelper.IsPeriodWithinContract(contract, input.Month, input.Year))
                 throw new InvalidOperationException("Tháng/năm không nằm trong thời gian hợp đồng.");
 
             var prepare = await GetPrepareAsync(input.ContractId, input.Month, input.Year, input.Id);
@@ -294,7 +297,7 @@ namespace RoomRentalManagerServer.Application.Services
 
             var headers = new[]
             {
-                "Phòng", "Người thuê", "Hợp đồng", "Tháng", "Năm",
+                "Phòng", "Người thuê", "Hợp đồng", "Tháng", "Năm", "Kỳ thu", "Số ngày",
                 "Điện cũ", "Điện mới", "Tiêu thụ điện", "Trạng thái"
             };
 
@@ -312,10 +315,14 @@ namespace RoomRentalManagerServer.Application.Services
                 ws.Cell(row, 3).Value = dto.ContractId;
                 ws.Cell(row, 4).Value = dto.Month;
                 ws.Cell(row, 5).Value = dto.Year;
-                ws.Cell(row, 6).Value = dto.OldElectricIndex;
-                ws.Cell(row, 7).Value = dto.NewElectricIndex;
-                ws.Cell(row, 8).Value = dto.ElectricUsage;
-                ws.Cell(row, 9).Value = dto.Status.ToString();
+                ws.Cell(row, 6).Value = dto.PeriodStart.HasValue && dto.PeriodEnd.HasValue
+                    ? $"{dto.PeriodStart:dd/MM/yyyy} - {dto.PeriodEnd:dd/MM/yyyy}"
+                    : "";
+                ws.Cell(row, 7).Value = dto.OccupancyDays;
+                ws.Cell(row, 8).Value = dto.OldElectricIndex;
+                ws.Cell(row, 9).Value = dto.NewElectricIndex;
+                ws.Cell(row, 10).Value = dto.ElectricUsage;
+                ws.Cell(row, 11).Value = dto.Status.ToString();
                 row++;
             }
 
@@ -393,7 +400,26 @@ namespace RoomRentalManagerServer.Application.Services
                 dto.TenantName = string.Join(", ", GetTenantIds(contract)
                     .Where(userMap.ContainsKey)
                     .Select(id => userMap[id]));
+                ApplyPeriodFields(dto, contract, dto.Month, dto.Year);
             }
+        }
+
+        private static void ApplyPeriodFields(UtilityReadingDto dto, Contract contract, int month, int year)
+        {
+            var period = BillingPeriodHelper.GetBillingPeriod(contract, month, year);
+            dto.PeriodStart = period.PeriodStart;
+            dto.PeriodEnd = period.PeriodEnd;
+            dto.OccupancyDays = period.OccupancyDays;
+            dto.IsFullPeriod = period.IsFullPeriod;
+        }
+
+        private static void ApplyPeriodFields(UtilityReadingPrepareDto dto, Contract contract, int month, int year)
+        {
+            var period = BillingPeriodHelper.GetBillingPeriod(contract, month, year);
+            dto.PeriodStart = period.PeriodStart;
+            dto.PeriodEnd = period.PeriodEnd;
+            dto.OccupancyDays = period.OccupancyDays;
+            dto.IsFullPeriod = period.IsFullPeriod;
         }
 
         private async Task EnrichContractNamesAsync(UtilityReadingPrepareDto dto, Contract contract)
@@ -424,19 +450,6 @@ namespace RoomRentalManagerServer.Application.Services
 
             error = null;
             return true;
-        }
-
-        private static bool IsMonthWithinContract(Contract contract, int month, int year)
-        {
-            var periodStart = new DateTime(year, month, 1);
-            var periodEnd = periodStart.AddMonths(1).AddDays(-1);
-            return periodStart.Date >= contract.StartDate.Date && periodEnd.Date <= contract.EndDate.Date;
-        }
-
-        private static (int Month, int Year) GetPreviousMonthYear(int month, int year)
-        {
-            if (month == 1) return (12, year - 1);
-            return (month - 1, year);
         }
 
         private static (int Month, int Year) GetNextMonthYear(int month, int year)

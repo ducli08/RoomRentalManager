@@ -3,6 +3,8 @@
   <nz-descriptions-item nzTitle="Người thuê">{{ reading.tenantName }}</nz-descriptions-item>
   <nz-descriptions-item nzTitle="Hợp đồng">#{{ reading.contractId }}</nz-descriptions-item>
   <nz-descriptions-item nzTitle="Tháng/Năm">{{ reading.month }}/{{ reading.year }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Kỳ thu">{{ formatBillingPeriod(reading.periodStart, reading.periodEnd) }}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="Số ngày">{{ reading.occupancyDays ?? '-' }}</nz-descriptions-item>
   <nz-descriptions-item nzTitle="Điện cũ">{{ reading.oldElectricIndex | number }}</nz-descriptions-item>
   <nz-descriptions-item nzTitle="Điện mới">{{ reading.newElectricIndex | number }}</nz-descriptions-item>
   <nz-descriptions-item nzTitle="Tiêu thụ điện">{{ reading.electricUsage | number }}</nz-descriptions-item>

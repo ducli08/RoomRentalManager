@@ -16,7 +16,7 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.ContractProfi
                 .ForMember(dest => dest.MonthlyRent, opt => opt.Ignore())
                 .ForMember(dest => dest.ElectricUnitPrice, opt => opt.Ignore())
                 .ForMember(dest => dest.WaterUnitPrice, opt => opt.Ignore())
-                .ForMember(dest => dest.GarbageFeePerYear, opt => opt.Ignore());
+                .ForMember(dest => dest.GarbageFeePerMonthPerPerson, opt => opt.Ignore());
         }
     }
 }

@@ -14,7 +14,7 @@ namespace RoomRentalManagerServer.Application.Model.ContractsModel.Dto
         public string? MonthlyRent { get; set; }
         public string? ElectricUnitPrice { get; set; }
         public string? WaterUnitPrice { get; set; }
-        public string? GarbageFeePerYear { get; set; }
+        public string? GarbageFeePerMonthPerPerson { get; set; }
         public StatusContract StatusContract { get; set; }
     }
 }

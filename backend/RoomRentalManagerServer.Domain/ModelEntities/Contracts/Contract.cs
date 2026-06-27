@@ -42,8 +42,8 @@ namespace RoomRentalManagerServer.Domain.ModelEntities.Contracts
         [Column("waterUnitPrice")]
         public decimal WaterUnitPrice { get; set; } = 30000;
 
-        [Column("garbageFeePerYear")]
-        public decimal GarbageFeePerYear { get; set; } = 150000;
+        [Column("garbageFeePerMonthPerPerson")]
+        public decimal GarbageFeePerMonthPerPerson { get; set; } = 12500;
 
         [Column("statusContract")]
         public StatusContract StatusContract { get; set; }
