@@ -10,8 +10,10 @@ using RoomRentalManagerServer.Domain.ModelEntities.Contracts;
 using RoomRentalManagerServer.Domain.ModelEntities.Invoices;
 using RoomRentalManagerServer.Domain.ModelEntities.UtilityReadings;
 using RoomRentalManagerServer.Infrastructure.Data;
+using RoomRentalManagerServer.Infrastructure.Repositories.BankAccountRepositories;
 using RoomRentalManagerServer.Infrastructure.Repositories.ContractRepositories;
 using RoomRentalManagerServer.Infrastructure.Repositories.InvoiceRepositories;
+using RoomRentalManagerServer.Infrastructure.Repositories.PaymentRepositories;
 using RoomRentalManagerServer.Infrastructure.Repositories.RoomRentalRepositories;
 using RoomRentalManagerServer.Infrastructure.Repositories.UserRepository;
 using RoomRentalManagerServer.Infrastructure.Repositories.UtilityReadingRepositories;
@@ -75,7 +77,7 @@ public class UtilityReadingFlowTests
 
         const decimal expected = 2_000_000m + (100 * 4000m) + (30_000m / 30 * 31) + (12_500m / 30 * 31);
         Assert.Equal(expected, invoice.TotalAmount);
-        Assert.Equal(InvoiceStatus.Issued, invoice.Status);
+        Assert.Equal(InvoiceStatus.Unpaid, invoice.Status);
         Assert.Equal(UtilityReadingStatus.InvoiceGenerated, result.Status);
         Assert.Equal(new DateTime(2025, 1, 31).AddDays(5), invoice.DueDate.Date);
     }
@@ -181,7 +183,7 @@ public class UtilityReadingFlowTests
         });
 
         var invoice = await db.Invoices.FirstAsync(x => x.UtilityReadingId == reading.Id);
-        invoice.AmountPaid = 1;
+        invoice.PaidAmount = 1;
         await db.SaveChangesAsync();
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => utilityApp.CreateOrEditAsync(new CreateOrEditUtilityReadingDto
@@ -243,6 +245,9 @@ public class UtilityReadingFlowTests
         var contractRepo = new ContractRepository(db, NullLogger<ContractRepository>.Instance);
         var utilityRepo = new UtilityReadingRepository(db, NullLogger<UtilityReadingRepository>.Instance);
         var invoiceRepo = new InvoiceRepository(db, NullLogger<InvoiceRepository>.Instance);
+        var invoiceItemRepo = new InvoiceItemRepository(db, NullLogger<InvoiceItemRepository>.Instance);
+        var paymentRepo = new PaymentRepository(db, NullLogger<PaymentRepository>.Instance);
+        var bankRepo = new BankAccountRepository(db, NullLogger<BankAccountRepository>.Instance);
         var roomRepo = new RoomRentalRepository(db, NullLogger<RoomRentalRepository>.Instance);
         var userRepo = new UserRepository(db, NullLogger<UserRepository>.Instance);
         var currentUser = new FakeCurrentUserAppService(isAuthenticated: true, userId: 1, userName: "admin");
@@ -252,9 +257,13 @@ public class UtilityReadingFlowTests
         IInvoiceAppService invoiceApp = new InvoiceAppService(
             NullLogger<InvoiceAppService>.Instance,
             invoiceRepo,
+            invoiceItemRepo,
             contractRepo,
-            currentUser,
-            mapper);
+            paymentRepo,
+            roomRepo,
+            userRepo,
+            bankRepo,
+            currentUser);
 
         IUtilityReadingAppService utilityApp = new UtilityReadingAppService(
             NullLogger<UtilityReadingAppService>.Instance,

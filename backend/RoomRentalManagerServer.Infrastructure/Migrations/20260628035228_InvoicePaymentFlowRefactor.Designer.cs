@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RoomRentalManagerServer.Infrastructure.Data;
@@ -12,9 +13,11 @@ using RoomRentalManagerServer.Infrastructure.Data;
 namespace RoomRentalManagerServer.Infrastructure.Migrations
 {
     [DbContext(typeof(RoomRentalManagerServerDbContext))]
-    partial class RoomRentalManagerServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628035228_InvoicePaymentFlowRefactor")]
+    partial class InvoicePaymentFlowRefactor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

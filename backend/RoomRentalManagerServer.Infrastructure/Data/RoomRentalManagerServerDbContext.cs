@@ -7,7 +7,6 @@ using RoomRentalManagerServer.Domain.ModelEntities.Equipments;
 using RoomRentalManagerServer.Domain.ModelEntities.ImageDescriptions;
 using RoomRentalManagerServer.Domain.ModelEntities.Invoices;
 using RoomRentalManagerServer.Domain.ModelEntities.PaymentAmount;
-using RoomRentalManagerServer.Domain.ModelEntities.PaymentSubmissions;
 using RoomRentalManagerServer.Domain.ModelEntities.Provinces;
 using RoomRentalManagerServer.Domain.ModelEntities.RoleGroupPermission;
 using RoomRentalManagerServer.Domain.ModelEntities.RoleGroups;
@@ -29,8 +28,8 @@ public class RoomRentalManagerServerDbContext : DbContext
     public DbSet<Contract> Contracts { get; set; }
     public DbSet<UtilityReading> UtilityReadings { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<InvoiceItem> InvoiceItems { get; set; }
     public DbSet<Payment> Payments { get; set; }
-    public DbSet<PaymentSubmission> PaymentSubmissions { get; set; }
     public DbSet<BankAccount> BankAccounts { get; set; }
     public DbSet<RoomEquipment> RoomEquipments { get; set; }
     public DbSet<Equipment> Equipments { get; set; }
@@ -54,6 +53,15 @@ public class RoomRentalManagerServerDbContext : DbContext
 
         modelBuilder.Entity<UtilityReading>()
             .HasIndex(x => new { x.ContractId, x.Month, x.Year })
+            .IsUnique();
+
+        modelBuilder.Entity<Payment>()
+            .HasIndex(p => p.InvoiceId)
+            .IsUnique()
+            .HasFilter("\"status\" IN (1, 2)");
+
+        modelBuilder.Entity<Payment>()
+            .HasIndex(p => p.ReferenceCode)
             .IsUnique();
     }
 }

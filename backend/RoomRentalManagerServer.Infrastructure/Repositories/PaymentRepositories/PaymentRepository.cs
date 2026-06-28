@@ -17,7 +17,22 @@ namespace RoomRentalManagerServer.Infrastructure.Repositories.PaymentRepositorie
             _logger = logger;
         }
 
-        public IQueryable<Payment> Query() => _context.Payments.AsNoTracking().AsQueryable();
+        public IQueryable<Payment> Query() => _context.Payments.AsQueryable();
+
+        public async Task<Payment?> GetByIdAsync(long id, bool asNoTracking = true)
+        {
+            try
+            {
+                var query = _context.Payments.Where(x => x.Id == id);
+                if (asNoTracking) query = query.AsNoTracking();
+                return await query.FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get payment by id {Id}", id);
+                throw;
+            }
+        }
 
         public async Task AddAsync(Payment payment)
         {
@@ -32,6 +47,19 @@ namespace RoomRentalManagerServer.Infrastructure.Repositories.PaymentRepositorie
                 throw;
             }
         }
+
+        public async Task UpdateAsync(Payment payment)
+        {
+            try
+            {
+                _context.Payments.Update(payment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update payment {Id}", payment.Id);
+                throw;
+            }
+        }
     }
 }
-

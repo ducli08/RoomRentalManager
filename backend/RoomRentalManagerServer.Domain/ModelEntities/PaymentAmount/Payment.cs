@@ -13,34 +13,50 @@ namespace RoomRentalManagerServer.Domain.ModelEntities.PaymentAmount
         [Column("invoiceId")]
         public long InvoiceId { get; set; }
 
-        [Column("AmountPaid")]
-        [Display(Name = "Số tiền đã thanh toán")]
-        public decimal AmountPaid { get; set; }
-
-        [Column("paymentDate")]
-        [Display(Name = "Ngày thanh toán")]
-        public DateTime PaymentDate { get; set; }
-
         [Column("paymentMethod")]
-        [Display(Name = "Phương thức thanh toán")]
-        public PaymentMethod PaymentMethod { get; set; }
+        public PaymentMethod Method { get; set; }
+
+        [Column("status")]
+        public PaymentStatus Status { get; set; }
+
+        [Column("amount")]
+        public decimal Amount { get; set; }
+
+        [Column("referenceCode")]
+        public string ReferenceCode { get; set; } = string.Empty;
+
+        [Column("evidenceUrl")]
+        public string? EvidenceUrl { get; set; }
+
+        [Column("evidencePublicId")]
+        public string? EvidencePublicId { get; set; }
+
+        [Column("rejectedReason")]
+        public string? RejectedReason { get; set; }
+
+        [Column("cancelledReason")]
+        public string? CancelledReason { get; set; }
+
+        [Column("cancelledAt")]
+        public DateTime? CancelledAt { get; set; }
 
         [Column("note")]
-        [Display(Name = "Ghi chú")]
         public string? Note { get; set; }
 
+        [Column("paymentDate")]
+        public DateTime? PaymentDate { get; set; }
+
         [Column("createdAt")]
-        [Display(Name = "Ngày tạo")]
         public DateTime CreatedAt { get; set; }
 
         [Column("updatedAt")]
         public DateTime UpdatedAt { get; set; }
 
         [Column("creatorUser")]
-        public string CreatorUser { get; set; }
+        public string CreatorUser { get; set; } = string.Empty;
 
         [Column("lastUpdateUser")]
-        public string LastUpdateUser { get; set; }
+        public string LastUpdateUser { get; set; } = string.Empty;
     }
 
     public enum PaymentMethod
@@ -51,5 +67,14 @@ namespace RoomRentalManagerServer.Domain.ModelEntities.PaymentAmount
         BankTransfer = 2,
         [Display(Name = "Thẻ")]
         Card = 3
+    }
+
+    public enum PaymentStatus
+    {
+        PendingTransfer = 1,
+        WaitingForApproval = 2,
+        Approved = 3,
+        Rejected = 4,
+        Cancelled = 5
     }
 }

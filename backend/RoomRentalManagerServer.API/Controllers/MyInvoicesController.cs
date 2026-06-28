@@ -4,7 +4,6 @@ using RoomRentalManagerServer.Application.Common.CommonDto;
 using RoomRentalManagerServer.Application.Interfaces;
 using RoomRentalManagerServer.Application.Model.InvoicesModel.Dto;
 using RoomRentalManagerServer.Application.Model.PaymentsModel.Dto;
-using RoomRentalManagerServer.Application.Model.PaymentSubmissionsModel.Dto;
 
 namespace RoomRentalManagerServer.API.Controllers
 {
@@ -14,12 +13,12 @@ namespace RoomRentalManagerServer.API.Controllers
     public class MyInvoicesController : ControllerBase
     {
         private readonly IInvoiceAppService _invoiceAppService;
-        private readonly IPaymentFlowAppService _paymentFlowAppService;
+        private readonly IPaymentAppService _paymentAppService;
 
-        public MyInvoicesController(IInvoiceAppService invoiceAppService, IPaymentFlowAppService paymentFlowAppService)
+        public MyInvoicesController(IInvoiceAppService invoiceAppService, IPaymentAppService paymentAppService)
         {
             _invoiceAppService = invoiceAppService;
-            _paymentFlowAppService = paymentFlowAppService;
+            _paymentAppService = paymentAppService;
         }
 
         [HttpPost("search")]
@@ -39,21 +38,41 @@ namespace RoomRentalManagerServer.API.Controllers
             return Ok(dto);
         }
 
-        [HttpPost("{id:long}/payment-intents")]
-        [ProducesResponseType(typeof(PaymentIntentDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreatePaymentIntent(long id)
+        [HttpGet("{id:long}/detail")]
+        [ProducesResponseType(typeof(InvoiceDetailDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetail(long id)
         {
-            var dto = await _paymentFlowAppService.CreatePaymentIntentAsync(id);
+            var dto = await _invoiceAppService.GetMyDetailAsync(id);
+            if (dto == null) return NotFound(new { message = "Invoice not found" });
             return Ok(dto);
         }
 
-        [HttpPost("{id:long}/payment-submissions")]
-        [ProducesResponseType(typeof(PaymentSubmissionDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SubmitEvidence(long id, [FromForm] IFormFile evidenceFile)
+        [HttpPost("{id:long}/payments/qr")]
+        public async Task<IActionResult> CreateQrPayment(long id)
         {
-            var dto = await _paymentFlowAppService.SubmitTransferEvidenceAsync(id, evidenceFile);
+            var dto = await _paymentAppService.CreateQrPaymentAsync(id, isAdmin: false);
+            return Ok(dto);
+        }
+
+        [HttpPost("{id:long}/payments/cash")]
+        public async Task<IActionResult> CreateCashPayment(long id, [FromQuery] string? note)
+        {
+            var dto = await _paymentAppService.CreateCashPaymentAsync(id, note, isAdmin: false);
+            return Ok(dto);
+        }
+
+        [HttpPost("{id:long}/payments/{paymentId:long}/evidence")]
+        public async Task<IActionResult> UploadEvidence(long id, long paymentId, [FromForm] IFormFile evidenceFile, [FromQuery] string? note)
+        {
+            var dto = await _paymentAppService.UploadEvidenceAsync(id, paymentId, evidenceFile, note, isAdmin: false);
+            return Ok(dto);
+        }
+
+        [HttpPost("{id:long}/payments/{paymentId:long}/cancel")]
+        public async Task<IActionResult> CancelQrPayment(long id, long paymentId, [FromBody] CancelQrPaymentDto? request)
+        {
+            var dto = await _paymentAppService.CancelQrPaymentAsync(id, paymentId, request?.Reason, isAdmin: false);
             return Ok(dto);
         }
     }
 }
-
